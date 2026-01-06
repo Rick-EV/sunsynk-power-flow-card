@@ -74,6 +74,8 @@ export interface sunsynkPowerFlowCardConfig extends LovelaceCardConfig {
 		auto_scale: boolean;
 		three_phase: boolean;
 		navigate: string;
+		label_autarky: string;
+		label_ratio: string;
 	};
 	battery: {
 		count: number;
@@ -101,6 +103,8 @@ export interface sunsynkPowerFlowCardConfig extends LovelaceCardConfig {
 		navigate: string;
 		invert_flow: boolean;
 		soc_decimal_places?: number;
+		label_daily_chrg: string;
+		label_daily_dischrg: string;
 	};
 	battery2: {
 		energy: any;

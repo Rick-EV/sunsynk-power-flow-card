@@ -1010,7 +1010,7 @@ export const renderBatteryElements = (
 					data.batteryShowDaily !== true,
 					'st3 left-align',
 					batteryColour,
-					localize('common.daily_charge'),
+					config.battery.label_daily_chrg || localize('common.daily_charge'),
 					true,
 				)}
 				${renderText(
@@ -1020,7 +1020,8 @@ export const renderBatteryElements = (
 					data.batteryShowDaily !== true,
 					'st3 left-align',
 					batteryColour,
-					localize('common.daily_discharge'),
+					config.battery.label_daily_dischrg ||
+						localize('common.daily_discharge'),
 					true,
 				)}
 				${createTextWithPopup(

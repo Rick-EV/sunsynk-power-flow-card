@@ -78,7 +78,7 @@ export const renderInverterElements = (
 				enableAutarky === AutarkyType.No,
 				'st3 left-align',
 				inverterColour,
-				localize('common.autarky'),
+				config.inverter.label_autarky || localize('common.autarky'),
 				true,
 			)}
 			${renderText(
@@ -88,7 +88,7 @@ export const renderInverterElements = (
 				enableAutarky === AutarkyType.No,
 				'st3 left-align',
 				inverterColour,
-				localize('common.ratio'),
+				config.inverter.label_ratio || localize('common.ratio'),
 				true,
 			)}
 			<circle
