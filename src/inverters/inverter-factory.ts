@@ -28,6 +28,7 @@ import { Ferroamp } from './brands/ferroamp';
 import { Easun } from './brands/easun';
 import { Solinteg } from './brands/solinteg';
 import { DeyeNew } from './brands/deye-new';
+import { Chisage } from './brands/chisage';
 
 export class InverterFactory {
 	static instance: InverterSettingsDto;
@@ -41,6 +42,8 @@ export class InverterFactory {
 
 	private static createInstance(brand: InverterModel): InverterSettingsDto {
 		switch (brand) {
+			case InverterModel.Chisage:
+				return new Chisage();
 			case InverterModel.Sigenergy:
 				return new Sigenergy();
 			case InverterModel.Linky:
