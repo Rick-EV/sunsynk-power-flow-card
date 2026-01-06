@@ -58,7 +58,7 @@ export class Sungrow extends InverterSettingsDto {
 			message: localize('common.offgrid'),
 		},
 		externalcontrol: {
-			states: ['external ems mode', 'forced mode'],
+			states: ['external ems mode', 'forced mode', 'dispatch run'],
 			color: 'green',
 			message: localize('common.externalcontrol'),
 		},
@@ -92,7 +92,6 @@ export class Sungrow extends InverterSettingsDto {
 				'un-initialized',
 				'open loop',
 				'safe mode',
-				'dispatch run',
 			],
 			color: 'red',
 			message: localize('common.fault'),
