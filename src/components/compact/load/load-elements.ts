@@ -655,6 +655,51 @@ export const renderLoadElements = (
 						}${auto_scale ? '' : ` ${UnitOfPower.WATT}`}`
 					: '0',
 			)}
+			${config.inverter.three_phase && config.entities?.load_power_L1
+				? svg`<a
+							href="#"
+							@click=${(e: Event) => Utils.handlePopup(e, config.entities.load_power_L1)}
+						>
+							<rect
+								x="300"
+								y="233.5"
+								width="30"
+								height="10"
+								fill="transparent"
+								pointer-events="all"
+							/>
+						</a>`
+				: ''}
+			${config.inverter.three_phase && config.entities?.load_power_L2
+				? svg`<a
+							href="#"
+							@click=${(e: Event) => Utils.handlePopup(e, config.entities.load_power_L2)}
+						>
+							<rect
+								x="330"
+								y="233.5"
+								width="30"
+								height="10"
+								fill="transparent"
+								pointer-events="all"
+							/>
+						</a>`
+				: ''}
+			${config.inverter.three_phase && config.entities?.load_power_L3
+				? svg`<a
+							href="#"
+							@click=${(e: Event) => Utils.handlePopup(e, config.entities.load_power_L3)}
+						>
+							<rect
+								x="360"
+								y="233.5"
+								width="30"
+								height="10"
+								fill="transparent"
+								pointer-events="all"
+							/>
+						</a>`
+				: ''}
 			<svg id="load-flow">
 				${renderPath(
 					'es-line',
