@@ -365,7 +365,7 @@ export const getCompactLayoutIconConfigs = (
 		width: 36,
 		height: 36,
 		loadNumber: 1,
-		displayCondition: data.additionalLoad !== 0,
+		displayCondition: [1, 2].includes(data.additionalLoad),
 		opacityCondition:
 			data.iconEssentialLoad1 === 'oven' &&
 			[1, 2].includes(data.additionalLoad),
@@ -380,7 +380,7 @@ export const getCompactLayoutIconConfigs = (
 		width: 36,
 		height: 36,
 		loadNumber: 1,
-		displayCondition: data.additionalLoad !== 0,
+		displayCondition: [1, 2].includes(data.additionalLoad),
 		opacityCondition:
 			data.iconEssentialLoad1 === 'pump' &&
 			[1, 2].includes(data.additionalLoad),
@@ -394,7 +394,7 @@ export const getCompactLayoutIconConfigs = (
 		width: 30,
 		height: 30,
 		loadNumber: 1,
-		displayCondition: data.additionalLoad !== 0,
+		displayCondition: [1, 2].includes(data.additionalLoad),
 		opacityCondition:
 			data.iconEssentialLoad1 === 'aircon' &&
 			[1, 2].includes(data.additionalLoad),
@@ -408,7 +408,7 @@ export const getCompactLayoutIconConfigs = (
 		width: 36,
 		height: 36,
 		loadNumber: 1,
-		displayCondition: data.additionalLoad !== 0,
+		displayCondition: [1, 2].includes(data.additionalLoad),
 		opacityCondition:
 			data.iconEssentialLoad1 === 'boiler' &&
 			[1, 2].includes(data.additionalLoad),
@@ -424,7 +424,7 @@ export const getCompactLayoutIconConfigs = (
 		width: 36,
 		height: 36,
 		loadNumber: 2,
-		displayCondition: data.additionalLoad !== 0,
+		displayCondition: [1, 2].includes(data.additionalLoad),
 		opacityCondition:
 			data.iconEssentialLoad2 === 'oven' && data.additionalLoad === 2,
 		iconType: 'oven' as const,
@@ -438,7 +438,7 @@ export const getCompactLayoutIconConfigs = (
 		width: 36,
 		height: 36,
 		loadNumber: 2,
-		displayCondition: data.additionalLoad !== 0,
+		displayCondition: [1, 2].includes(data.additionalLoad),
 		opacityCondition:
 			data.iconEssentialLoad2 === 'pump' && data.additionalLoad === 2,
 		iconType: 'pump' as const,
@@ -451,7 +451,7 @@ export const getCompactLayoutIconConfigs = (
 		width: 30,
 		height: 30,
 		loadNumber: 2,
-		displayCondition: data.additionalLoad !== 0,
+		displayCondition: [1, 2].includes(data.additionalLoad),
 		opacityCondition:
 			data.iconEssentialLoad2 === 'aircon' && data.additionalLoad === 2,
 		iconType: 'aircon' as const,
@@ -464,7 +464,7 @@ export const getCompactLayoutIconConfigs = (
 		width: 36,
 		height: 36,
 		loadNumber: 2,
-		displayCondition: data.additionalLoad !== 0,
+		displayCondition: [1, 2].includes(data.additionalLoad),
 		opacityCondition:
 			data.iconEssentialLoad2 === 'boiler' && data.additionalLoad === 2,
 		iconType: 'boiler' as const,
