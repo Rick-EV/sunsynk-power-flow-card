@@ -34,6 +34,7 @@ export enum InverterModel {
 	Solax = 'solax',
 	Solis = 'solis',
 	Solinteg = 'solinteg',
+	SRNEHES = 'srne-hes',
 	Sungrow = 'sungrow',
 	Sunsynk = 'sunsynk',
 	Victron = 'victron',
