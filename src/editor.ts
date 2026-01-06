@@ -14,6 +14,7 @@ import {
 import { customElement, property } from 'lit/decorators.js';
 import { localize } from './localize/localize';
 import { capitalize } from 'lodash';
+import defaults from './defaults';
 import { EDITOR_NAME, SensorDeviceClass } from './const';
 import { LovelaceConfig } from 'custom-card-helpers/src/types';
 
@@ -495,6 +496,7 @@ export class SunSynkCardEditor
 		};
 		visit(clone);
 		this._config = {
+			...defaults,
 			...this._config,
 			...(clone as unknown as sunsynkPowerFlowCardConfig),
 		};
