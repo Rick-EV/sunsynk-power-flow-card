@@ -5,6 +5,8 @@ import {
 	UnitOfEnergy,
 } from '../const';
 import { navigate } from 'custom-card-helpers';
+import { globalData } from './globals';
+import type { HomeAssistant } from 'custom-card-helpers';
 
 export class Utils {
 	static toNum(
@@ -29,14 +31,65 @@ export class Utils {
 		return keyPoints.split(';').reverse().join(';');
 	}
 
+	private static formatNumberLocale(value: number, decimals: number): string {
+		const fractionDigits = Number.isNaN(decimals) ? 2 : decimals;
+
+		// Prefer Home Assistant's configured number format if available
+		//const hass: any = (globalData as any).hass;
+		const hass = globalData.hass as HomeAssistant | null;
+		const nf: string | undefined = hass?.locale?.number_format;
+		const langFromHass: string | undefined =
+			hass?.selectedLanguage || hass?.locale?.language || hass?.language;
+
+		let locale: string | undefined = undefined;
+		let useGrouping = true;
+
+		switch (nf) {
+			case 'auto':
+			case 'language':
+				// Use HA language as locale if available, else fall back to browser
+				locale = langFromHass;
+				break;
+			case 'system':
+				// Let browser/OS decide fully
+				locale = undefined;
+				break;
+			case 'comma_decimal': // 1,234,567.89
+				locale = 'en-US';
+				break;
+			case 'decimal_comma': // 1.234.567,89
+				locale = 'de-DE';
+				break;
+			case 'space_comma': //
+				locale = 'fr-FR';
+				break;
+			case 'none': // 123456789.89 (no grouping)
+				locale = langFromHass;
+				useGrouping = false;
+				break;
+			default:
+				// Unknown format: fall back to browser/OS locale
+				locale = undefined;
+		}
+
+		return value.toLocaleString(locale, {
+			minimumFractionDigits: fractionDigits,
+			maximumFractionDigits: fractionDigits,
+			useGrouping,
+		});
+	}
+
 	static convertValue(value, decimal = 2) {
 		decimal = Number.isNaN(decimal) ? 2 : decimal;
 		if (Math.abs(value) >= 1000000) {
-			return `${(value / 1000000).toFixed(decimal)} MW`;
+			const scaled = value / 1000000;
+			return `${Utils.formatNumberLocale(scaled, decimal)} MW`;
 		} else if (Math.abs(value) >= 1000) {
-			return `${(value / 1000).toFixed(decimal)} kW`;
+			const scaled = value / 1000;
+			return `${Utils.formatNumberLocale(scaled, decimal)} kW`;
 		} else {
-			return `${Math.round(value)} W`;
+			const rounded = Math.round(value);
+			return `${rounded.toLocaleString(undefined)} W`;
 		}
 	}
 
@@ -50,34 +103,39 @@ export class Utils {
 		if (isNaN(numberValue)) return 0;
 
 		const rules = unitOfEnergyConversionRules[unit];
-		if (!rules) return `${numberValue.toFixed(decimal)} ${unit}`;
+		if (!rules)
+			return `${Utils.formatNumberLocale(numberValue, decimal)} ${unit}`;
 
 		if (unit === UnitOfEnergy.WATT_HOUR && Math.abs(numberValue) < 1000) {
-			return `${Math.round(numberValue)} ${unit}`;
+			const rounded = Math.round(numberValue);
+			return `${rounded.toLocaleString(undefined)} ${unit}`;
 		}
 
 		if (unit === UnitOfPower.WATT && Math.abs(numberValue) < 1000) {
-			return `${Math.round(numberValue)} ${unit}`;
+			const rounded = Math.round(numberValue);
+			return `${rounded.toLocaleString(undefined)} ${unit}`;
 		}
 
 		if (unit === UnitOfPower.KILO_WATT && Math.abs(numberValue) < 1) {
-			return `${Math.round(numberValue * 1000)} W`;
+			const watts = Math.round(numberValue * 1000);
+			return `${watts.toLocaleString(undefined)} W`;
 		}
 
 		if (unit === UnitOfPower.MEGA_WATT && Math.abs(numberValue) < 1) {
-			return `${(numberValue * 1000).toFixed(decimal)} kW`;
+			const kw = numberValue * 1000;
+			return `${Utils.formatNumberLocale(kw, decimal)} kW`;
 		}
 
 		for (const rule of rules) {
 			if (Math.abs(numberValue) >= rule.threshold) {
-				const convertedValue = (numberValue / rule.divisor).toFixed(
-					rule.decimal || decimal,
-				);
+				const divided = numberValue / rule.divisor;
+				const dec = rule.decimal || decimal;
+				const convertedValue = Utils.formatNumberLocale(divided, dec);
 				return `${convertedValue} ${rule.targetUnit}`;
 			}
 		}
 
-		return `${numberValue.toFixed(decimal)} ${unit}`;
+		return `${Utils.formatNumberLocale(numberValue, decimal)} ${unit}`;
 	}
 
 	private static isPopupOpen = false;
