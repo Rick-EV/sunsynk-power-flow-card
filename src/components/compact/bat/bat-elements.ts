@@ -58,7 +58,9 @@ export const renderBatteryElements = (
 						rx="4.5"
 						ry="4.5"
 						fill="none"
-						stroke="${batteryColour}"
+						stroke="${config.battery.dynamic_colour
+							? data.flowBatColour
+							: batteryColour}"
 						pointer-events="all"
 						class="${compactMode ? '' : ''}"
 					/>
@@ -87,7 +89,9 @@ export const renderBatteryElements = (
 						rx="4.5"
 						ry="4.5"
 						fill="none"
-						stroke="${batteryColour}"
+						stroke="${config.battery.dynamic_colour
+							? data.flowBatColour
+							: batteryColour}"
 						pointer-events="all"
 						class="${compactMode && batteryCount === 1 ? '' : 'st12'}"
 					/>

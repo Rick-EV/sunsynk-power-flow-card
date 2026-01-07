@@ -23,6 +23,10 @@ export interface LoadIconConfig {
  * @returns A lit-html template for the SVG icon
  */
 export const renderStaticLoadIcon = (data: DataDto, config: LoadIconConfig) => {
+	if (!config.displayCondition || !config.opacityCondition) {
+		return html``;
+	}
+
 	const dynamicColor =
 		config.loadNumber === 1
 			? data.dynamicColourEssentialLoad1
@@ -30,6 +34,10 @@ export const renderStaticLoadIcon = (data: DataDto, config: LoadIconConfig) => {
 
 	const iconPath = icons[config.iconType];
 	const viewBoxSize = config.viewBoxSize || 24; // Default to 24 if not specified
+
+	if (!iconPath) {
+		return html``;
+	}
 
 	return html`
 		<svg

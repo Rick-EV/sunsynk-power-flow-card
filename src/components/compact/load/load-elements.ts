@@ -62,7 +62,7 @@ export const renderLoadElements = (
 				rx="4.5"
 				ry="4.5"
 				fill="none"
-				stroke="${loadColour}"
+				stroke="${dynamic_colour ? flowColour : loadColour}"
 				pointer-events="all"
 			/>
 			<svg id="Esential-Load1" style="overflow: visible">
