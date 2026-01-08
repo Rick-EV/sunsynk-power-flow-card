@@ -111,7 +111,10 @@ export const renderLoadElements = (
 						data.stateEssentialLoad5Extra.isValid(),
 					config.wide ? 'st3 left-align' : 'st3 right-align',
 					dynamicColourEssentialLoad5,
-					`${data.stateEssentialLoad5Extra.toNum(1)} ${data.stateEssentialLoad5Extra?.getUOM()}`,
+					`${Utils.formatNumberLocale(
+						data.stateEssentialLoad5Extra.toNum(1),
+						1,
+					)} ${data.stateEssentialLoad5Extra?.getUOM()}`,
 					(e) => Utils.handlePopup(e, config.entities.essential_load5_extra),
 				)}
 				${createTextWithPopup(
@@ -176,7 +179,10 @@ export const renderLoadElements = (
 						data.stateEssentialLoad6Extra.isValid(),
 					config.wide ? 'st3 left-align' : 'st3 right-align',
 					dynamicColourEssentialLoad6,
-					`${data.stateEssentialLoad6Extra.toNum(1)} ${data.stateEssentialLoad6Extra?.getUOM()}`,
+					`${Utils.formatNumberLocale(
+						data.stateEssentialLoad6Extra.toNum(1),
+						1,
+					)} ${data.stateEssentialLoad6Extra?.getUOM()}`,
 					(e) => Utils.handlePopup(e, config.entities.essential_load6_extra),
 				)}
 				${createTextWithPopup(
@@ -827,7 +833,10 @@ export const renderLoadElements = (
 					data.stateEssentialLoad1Extra.isValid(),
 				'st3 left-align',
 				dynamicColourEssentialLoad1,
-				`${data.stateEssentialLoad1Extra.toNum(1)} ${data.stateEssentialLoad1Extra?.getUOM()}`,
+				`${Utils.formatNumberLocale(
+					data.stateEssentialLoad1Extra.toNum(1),
+					1,
+				)} ${data.stateEssentialLoad1Extra?.getUOM()}`,
 				(e) => Utils.handlePopup(e, config.entities.essential_load1_extra),
 			)}
 			${createTextWithPopup(
@@ -840,7 +849,10 @@ export const renderLoadElements = (
 					data.stateEssentialLoad1Extra.isValid(),
 				'st3 st8',
 				dynamicColourEssentialLoad1,
-				`${data.stateEssentialLoad1Extra.toNum(1)} ${data.stateEssentialLoad1Extra?.getUOM()}`,
+				`${Utils.formatNumberLocale(
+					data.stateEssentialLoad1Extra.toNum(1),
+					1,
+				)} ${data.stateEssentialLoad1Extra?.getUOM()}`,
 				(e) => Utils.handlePopup(e, config.entities.essential_load1_extra),
 			)}
 			${createTextWithPopup(
@@ -853,7 +865,10 @@ export const renderLoadElements = (
 					data.stateEssentialLoad1Extra.isValid(),
 				'st3 right-align',
 				dynamicColourEssentialLoad1,
-				`${data.stateEssentialLoad1Extra.toNum(1)} ${data.stateEssentialLoad1Extra?.getUOM()}`,
+				`${Utils.formatNumberLocale(
+					data.stateEssentialLoad1Extra.toNum(1),
+					1,
+				)} ${data.stateEssentialLoad1Extra?.getUOM()}`,
 				(e) => Utils.handlePopup(e, config.entities.essential_load1_extra),
 			)}
 			${createTextWithPopup(
@@ -866,7 +881,10 @@ export const renderLoadElements = (
 					data.stateEssentialLoad2Extra.isValid(),
 				'st3 left-align',
 				dynamicColourEssentialLoad2,
-				`${data.stateEssentialLoad2Extra.toNum(1)} ${data.stateEssentialLoad2Extra?.getUOM()}`,
+				`${Utils.formatNumberLocale(
+					data.stateEssentialLoad2Extra.toNum(1),
+					1,
+				)} ${data.stateEssentialLoad2Extra?.getUOM()}`,
 				(e) => Utils.handlePopup(e, config.entities.essential_load2_extra),
 			)}
 			${config.entities?.essential_power &&

@@ -341,7 +341,10 @@ export const renderInverterElements = (
 					!config.entities.inverter_current_164,
 				`${largeFont !== true ? 'st14' : 'st4'} st8`,
 				inverterColour,
-				`${data.inverterCurrent} ${UnitOfElectricalCurrent.AMPERE}`,
+				`${Utils.formatNumberLocale(
+					data.inverterCurrent,
+					1,
+				)} ${UnitOfElectricalCurrent.AMPERE}`,
 				(e) => Utils.handlePopup(e, config.entities.inverter_current_164),
 				true,
 			)}
@@ -352,7 +355,10 @@ export const renderInverterElements = (
 				!!(three_phase && config.entities?.inverter_current_L2),
 				`${largeFont !== true ? 'st14' : 'st4'} st8`,
 				inverterColour,
-				`${data.inverterCurrentL2} ${UnitOfElectricalCurrent.AMPERE}`,
+				`${Utils.formatNumberLocale(
+					data.inverterCurrentL2,
+					1,
+				)} ${UnitOfElectricalCurrent.AMPERE}`,
 				(e) => Utils.handlePopup(e, config.entities.inverter_current_L2),
 			)}
 			${createTextWithPopup(
@@ -362,7 +368,10 @@ export const renderInverterElements = (
 				!!(three_phase && config.entities?.inverter_current_L3),
 				`${largeFont !== true ? 'st14' : 'st4'} st8`,
 				inverterColour,
-				`${data.inverterCurrentL3} ${UnitOfElectricalCurrent.AMPERE}`,
+				`${Utils.formatNumberLocale(
+					data.inverterCurrentL3,
+					1,
+				)} ${UnitOfElectricalCurrent.AMPERE}`,
 				(e) => Utils.handlePopup(e, config.entities.inverter_current_L3),
 			)}
 			${createTextWithPopup(
@@ -387,7 +396,7 @@ export const renderInverterElements = (
 				),
 				'st3 left-align',
 				inverterColour,
-				`AC: ${data.stateRadiatorTemp.toNum(1)}°`,
+				`AC: ${Utils.formatNumberLocale(data.stateRadiatorTemp.toNum(1), 1)}°`,
 				(e) => Utils.handlePopup(e, config.entities.radiator_temp_91),
 			)}
 			${createTextWithPopup(
@@ -400,7 +409,7 @@ export const renderInverterElements = (
 				),
 				'st3 left-align',
 				inverterColour,
-				`DC: ${data.stateDCTransformerTemp.toNum(1)}°`,
+				`DC: ${Utils.formatNumberLocale(data.stateDCTransformerTemp.toNum(1), 1)}°`,
 				(e) => Utils.handlePopup(e, config.entities.dc_transformer_temp_90),
 			)}
 		</svg>

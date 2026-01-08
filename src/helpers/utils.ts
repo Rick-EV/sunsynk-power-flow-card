@@ -31,7 +31,7 @@ export class Utils {
 		return keyPoints.split(';').reverse().join(';');
 	}
 
-	private static formatNumberLocale(value: number, decimals: number): string {
+	static formatNumberLocale(value: number, decimals: number): string {
 		const fractionDigits = Number.isNaN(decimals) ? 2 : decimals;
 
 		// Prefer Home Assistant's configured number format if available

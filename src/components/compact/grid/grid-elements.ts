@@ -281,10 +281,10 @@ export const renderGridElements = (
 											),
 											`${!config.show_grid ? 'st12' : 'st3 left-align'}`,
 											gridColour,
-											`${data.energyCost} ${data.stateEnergyCostBuy.getUOM()}`,
+											`${Utils.formatNumberLocale(data.energyCost, 2)} ${data.stateEnergyCostBuy.getUOM()}`,
 											(e) =>
 												Utils.handlePopup(e, config.entities.energy_cost_buy),
-										)}`
+										)}}`
 				: svg`
                     ${createTextWithPopup(
 											'energy_cost',
@@ -296,7 +296,7 @@ export const renderGridElements = (
 											),
 											`${!config.show_grid ? 'st12' : 'st3 left-align'}`,
 											gridColour,
-											`${data.energyCost} ${data.stateEnergyCostSell.getUOM()}`,
+											`${Utils.formatNumberLocale(data.energyCost, 2)} ${data.stateEnergyCostSell.getUOM()}`,
 											(e) =>
 												Utils.handlePopup(e, config.entities.energy_cost_sell),
 											false,
@@ -308,7 +308,7 @@ export const renderGridElements = (
 				!config.show_grid || !data.statePrepaidUnits.isValid(),
 				config.entities?.prepaid_units ? 'st3' : 'st12',
 				gridColour,
-				data.statePrepaidUnits.toNum(1).toString(),
+				Utils.formatNumberLocale(data.statePrepaidUnits.toNum(1), 1),
 				(e) => Utils.handlePopup(e, config.entities.prepaid_units),
 				true,
 			)}

@@ -416,7 +416,10 @@ export const renderSolarElements = (
 					!data.statePV1Voltage.isValid(),
 				'st3 left-align',
 				solarColour,
-				`${data.statePV1Voltage.toNum(1)} ${UnitOfElectricPotential.VOLT}`,
+				`${Utils.formatNumberLocale(
+					data.statePV1Voltage.toNum(1),
+					1,
+				)} ${UnitOfElectricPotential.VOLT}`,
 				(e) => Utils.handlePopup(e, config.entities.pv1_voltage_109),
 				true,
 			)}
@@ -429,7 +432,10 @@ export const renderSolarElements = (
 					!data.statePV1Current.isValid(),
 				'st3 left-align',
 				solarColour,
-				`${data.statePV1Current.toNum(1)} ${UnitOfElectricalCurrent.AMPERE}`,
+				`${Utils.formatNumberLocale(
+					data.statePV1Current.toNum(1),
+					1,
+				)} ${UnitOfElectricalCurrent.AMPERE}`,
 				(e) => Utils.handlePopup(e, config.entities.pv1_current_110),
 				true,
 			)}
@@ -443,7 +449,10 @@ export const renderSolarElements = (
 					!data.statePV2Voltage.isValid(),
 				'st3 left-align',
 				solarColour,
-				`${data.statePV2Voltage.toNum(1)} ${UnitOfElectricPotential.VOLT}`,
+				`${Utils.formatNumberLocale(
+					data.statePV2Voltage.toNum(1),
+					1,
+				)} ${UnitOfElectricPotential.VOLT}`,
 				(e) => Utils.handlePopup(e, config.entities.pv2_voltage_111),
 				true,
 			)}
@@ -457,7 +466,10 @@ export const renderSolarElements = (
 					!data.statePV2Current.isValid(),
 				'st3 left-align',
 				solarColour,
-				`${data.statePV2Current.toNum(1)} ${UnitOfElectricalCurrent.AMPERE}`,
+				`${Utils.formatNumberLocale(
+					data.statePV2Current.toNum(1),
+					1,
+				)} ${UnitOfElectricalCurrent.AMPERE}`,
 				(e) => Utils.handlePopup(e, config.entities.pv2_current_112),
 				true,
 			)}
@@ -471,7 +483,10 @@ export const renderSolarElements = (
 					!data.statePV3Voltage.isValid(),
 				'st3 left-align',
 				solarColour,
-				`${data.statePV3Voltage.toNum(1)} ${UnitOfElectricPotential.VOLT}`,
+				`${Utils.formatNumberLocale(
+					data.statePV3Voltage.toNum(1),
+					1,
+				)} ${UnitOfElectricPotential.VOLT}`,
 				(e) => Utils.handlePopup(e, config.entities.pv3_voltage_113),
 				true,
 			)}
@@ -485,7 +500,10 @@ export const renderSolarElements = (
 					!data.statePV3Current.isValid(),
 				'st3 left-align',
 				solarColour,
-				`${data.statePV3Current.toNum(1)} ${UnitOfElectricalCurrent.AMPERE}`,
+				`${Utils.formatNumberLocale(
+					data.statePV3Current.toNum(1),
+					1,
+				)} ${UnitOfElectricalCurrent.AMPERE}`,
 				(e) => Utils.handlePopup(e, config.entities.pv3_current_114),
 				true,
 			)}
@@ -499,7 +517,10 @@ export const renderSolarElements = (
 					!data.statePV4Voltage.isValid(),
 				'st3 left-align',
 				solarColour,
-				`${data.statePV4Voltage.toNum(1)} ${UnitOfElectricPotential.VOLT}`,
+				`${Utils.formatNumberLocale(
+					data.statePV4Voltage.toNum(1),
+					1,
+				)} ${UnitOfElectricPotential.VOLT}`,
 				(e) => Utils.handlePopup(e, config.entities.pv4_voltage_115),
 				true,
 			)}
@@ -513,7 +534,10 @@ export const renderSolarElements = (
 					!data.statePV4Current.isValid(),
 				'st3 left-align',
 				solarColour,
-				`${data.statePV4Current.toNum(1)} ${UnitOfElectricalCurrent.AMPERE}`,
+				`${Utils.formatNumberLocale(
+					data.statePV4Current.toNum(1),
+					1,
+				)} ${UnitOfElectricalCurrent.AMPERE}`,
 				(e) => Utils.handlePopup(e, config.entities.pv4_current_116),
 				true,
 			)}

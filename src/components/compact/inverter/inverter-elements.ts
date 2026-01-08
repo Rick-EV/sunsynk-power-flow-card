@@ -323,9 +323,17 @@ export const renderInverterElements = (
 					!config.entities.inverter_voltage_154,
 				'st3 left-align',
 				inverterColour,
-				`${data.inverterVoltage}` +
-					`${three_phase && config.entities?.inverter_voltage_L2 ? ' | ' + data.inverterVoltageL2 : ''}` +
-					`${three_phase && config.entities?.inverter_voltage_L3 ? ' | ' + data.inverterVoltageL3 : ''}` +
+				`${Utils.formatNumberLocale(data.inverterVoltage, 0)}` +
+					`${
+						three_phase && config.entities?.inverter_voltage_L2
+							? ' | ' + Utils.formatNumberLocale(data.inverterVoltageL2, 0)
+							: ''
+					}` +
+					`${
+						three_phase && config.entities?.inverter_voltage_L3
+							? ' | ' + Utils.formatNumberLocale(data.inverterVoltageL3, 0)
+							: ''
+					}` +
 					` ${UnitOfElectricPotential.VOLT}`,
 				(e) => Utils.handlePopup(e, config.entities.inverter_voltage_154),
 				true,
@@ -338,7 +346,7 @@ export const renderInverterElements = (
 					!config.entities.load_frequency_192,
 				'st3 left-align',
 				inverterColour,
-				`${data.loadFrequency} Hz`,
+				`${Utils.formatNumberLocale(data.loadFrequency, 2)} Hz`,
 				(e) => Utils.handlePopup(e, config.entities.load_frequency_192),
 				true,
 			)}
@@ -350,9 +358,17 @@ export const renderInverterElements = (
 					!config.entities.inverter_current_164,
 				'st3 left-align',
 				inverterColour,
-				`${data.inverterCurrent}` +
-					`${three_phase && config.entities?.inverter_current_L2 ? ' | ' + data.inverterCurrentL2 : ''}` +
-					`${three_phase && config.entities?.inverter_current_L3 ? ' | ' + data.inverterCurrentL3 : ''}` +
+				`${Utils.formatNumberLocale(data.inverterCurrent, 1)}` +
+					`${
+						three_phase && config.entities?.inverter_current_L2
+							? ' | ' + Utils.formatNumberLocale(data.inverterCurrentL2, 1)
+							: ''
+					}` +
+					`${
+						three_phase && config.entities?.inverter_current_L3
+							? ' | ' + Utils.formatNumberLocale(data.inverterCurrentL3, 1)
+							: ''
+					}` +
 					` ${UnitOfElectricalCurrent.AMPERE}`,
 				(e) => Utils.handlePopup(e, config.entities.inverter_current_164),
 				true,
@@ -366,7 +382,7 @@ export const renderInverterElements = (
 				),
 				'st3 left-align',
 				inverterColour,
-				`AC: ${data.stateRadiatorTemp.toNum(1)}°`,
+				`AC: ${Utils.formatNumberLocale(data.stateRadiatorTemp.toNum(1), 1)}°`,
 				(e) => Utils.handlePopup(e, config.entities.radiator_temp_91),
 			)}
 			${createTextWithPopup(
@@ -379,7 +395,7 @@ export const renderInverterElements = (
 				),
 				'st3 left-align',
 				inverterColour,
-				`DC: ${data.stateDCTransformerTemp.toNum(1)}°`,
+				`DC: ${Utils.formatNumberLocale(data.stateDCTransformerTemp.toNum(1), 1)}°`,
 				(e) => Utils.handlePopup(e, config.entities.dc_transformer_temp_90),
 				false,
 			)}

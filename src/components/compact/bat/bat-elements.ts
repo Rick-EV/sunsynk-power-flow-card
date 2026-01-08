@@ -116,7 +116,7 @@ export const renderBatteryElements = (
 							compactMode,
 						`${largeFont !== true ? 'st14' : 'st4'} st8`,
 						batteryColour,
-						`${data.batteryVoltage} ${UnitOfElectricPotential.VOLT}`,
+						`${Utils.formatNumberLocale(data.batteryVoltage, 1)} ${UnitOfElectricPotential.VOLT}`,
 						(e) => Utils.handlePopup(e, config.entities.battery_voltage_183),
 						true,
 					)}
@@ -130,7 +130,7 @@ export const renderBatteryElements = (
 							batteryCount === 2,
 						`${compactMode ? 'st3 left-align' : 'st12'}`,
 						batteryColour,
-						`${data.batteryVoltage} ${UnitOfElectricPotential.VOLT}`,
+						`${Utils.formatNumberLocale(data.batteryVoltage, 1)} ${UnitOfElectricPotential.VOLT}`,
 						(e) => Utils.handlePopup(e, config.entities.battery_voltage_183),
 						true,
 					)}
@@ -144,7 +144,12 @@ export const renderBatteryElements = (
 							!data.stateBatteryCurrent.isValid(),
 						`${largeFont !== true ? 'st14' : 'st4'} st8`,
 						batteryColour,
-						`${show_absolute ? Math.abs(data.stateBatteryCurrent.toNum(1)) : data.stateBatteryCurrent.toNum(1)} ${UnitOfElectricalCurrent.AMPERE}`,
+						`${Utils.formatNumberLocale(
+							show_absolute
+								? Math.abs(Utils.toNum(data.stateBatteryCurrent.state, 1))
+								: Utils.toNum(data.stateBatteryCurrent.state, 1),
+							1,
+						)} ${UnitOfElectricalCurrent.AMPERE}`,
 						(e) => Utils.handlePopup(e, config.entities.battery_current_191),
 						true,
 					)}
@@ -159,7 +164,12 @@ export const renderBatteryElements = (
 							batteryCount === 2,
 						`${compactMode ? 'st3 left-align' : 'st12'}`,
 						batteryColour,
-						`${show_absolute ? Math.abs(data.stateBatteryCurrent.toNum(1)) : data.stateBatteryCurrent.toNum(1)} ${UnitOfElectricalCurrent.AMPERE}`,
+						`${Utils.formatNumberLocale(
+							show_absolute
+								? Math.abs(Utils.toNum(data.stateBatteryCurrent.state, 1))
+								: Utils.toNum(data.stateBatteryCurrent.state, 1),
+							1,
+						)} ${UnitOfElectricalCurrent.AMPERE}`,
 						(e) => Utils.handlePopup(e, config.entities.battery_current_191),
 						true,
 					)}
@@ -196,8 +206,26 @@ export const renderBatteryElements = (
 							: 'remaining-energy left-align',
 						batteryColour,
 						!config.battery.remaining_energy_to_shutdown
-							? `${Utils.toNum((data.batteryEnergy * (data.stateBatterySoc.toNum() / 100)) / 1000, 2)} ${UnitOfEnergy.KILO_WATT_HOUR}`
-							: `${Utils.toNum((data.batteryEnergy * ((data.stateBatterySoc?.toNum() - data.batteryOneShutdown) / 100)) / 1000, 2)} ${UnitOfEnergy.KILO_WATT_HOUR}`,
+							? `${Utils.formatNumberLocale(
+									Utils.toNum(
+										(data.batteryEnergy *
+											(data.stateBatterySoc.toNum() / 100)) /
+											1000,
+										2,
+									),
+									2,
+								)} ${UnitOfEnergy.KILO_WATT_HOUR}`
+							: `${Utils.formatNumberLocale(
+									Utils.toNum(
+										(data.batteryEnergy *
+											((data.stateBatterySoc?.toNum() -
+												data.batteryOneShutdown) /
+												100)) /
+											1000,
+										2,
+									),
+									2,
+								)} ${UnitOfEnergy.KILO_WATT_HOUR}`,
 						true,
 					)}
 					${renderText(
@@ -228,7 +256,7 @@ export const renderBatteryElements = (
 							!config.entities.battery_voltage_183,
 						'st3 right-align',
 						batteryColour,
-						`${data.batteryVoltage} ${UnitOfElectricPotential.VOLT}`,
+						`${Utils.formatNumberLocale(data.batteryVoltage, 1)} ${UnitOfElectricPotential.VOLT}`,
 						(e) => Utils.handlePopup(e, config.entities.battery_voltage_183),
 						true,
 					)}
@@ -241,7 +269,12 @@ export const renderBatteryElements = (
 							!data.stateBatteryCurrent.isValid(),
 						'st3 right-align',
 						batteryColour,
-						`${show_absolute ? Math.abs(data.stateBatteryCurrent.toNum(1)) : data.stateBatteryCurrent.toNum(1)} ${UnitOfElectricalCurrent.AMPERE}`,
+						`${Utils.formatNumberLocale(
+							show_absolute
+								? Math.abs(Utils.toNum(data.stateBatteryCurrent.state, 1))
+								: Utils.toNum(data.stateBatteryCurrent.state, 1),
+							1,
+						)} ${UnitOfElectricalCurrent.AMPERE}`,
 						(e) => Utils.handlePopup(e, config.entities.battery_current_191),
 						true,
 					)}
@@ -284,12 +317,12 @@ export const renderBatteryElements = (
 							!config.entities.battery2_voltage_183,
 						'st3 left-align',
 						battery2Colour,
-						`${data.battery2Voltage} ${UnitOfElectricPotential.VOLT}`,
+						`${Utils.formatNumberLocale(data.battery2Voltage, 1)} ${UnitOfElectricPotential.VOLT}`,
 						(e) => Utils.handlePopup(e, config.entities.battery2_voltage_183),
 						true,
 					)}
 					${createTextWithPopup(
-						'battery_current_191',
+						'battery2_current_191',
 						213.5,
 						308,
 						!config.entities.battery2_current_191 ||
@@ -297,7 +330,12 @@ export const renderBatteryElements = (
 							!data.stateBattery2Current.isValid(),
 						'st3 left-align',
 						battery2Colour,
-						`${config.battery2.show_absolute ? Math.abs(data.stateBattery2Current.toNum(1)) : data.stateBattery2Current.toNum(1)} ${UnitOfElectricalCurrent.AMPERE}`,
+						`${Utils.formatNumberLocale(
+							config.battery2.show_absolute
+								? Math.abs(Utils.toNum(data.stateBattery2Current.state, 1))
+								: Utils.toNum(data.stateBattery2Current.state, 1),
+							1,
+						)} ${UnitOfElectricalCurrent.AMPERE}`,
 						(e) => Utils.handlePopup(e, config.entities.battery2_current_191),
 						true,
 					)}
@@ -330,8 +368,26 @@ export const renderBatteryElements = (
 						'remaining-energy left-align',
 						battery2Colour,
 						!config.battery2.remaining_energy_to_shutdown
-							? `${Utils.toNum((data.battery2Energy * (data.stateBattery2Soc.toNum() / 100)) / 1000, 2)} ${UnitOfEnergy.KILO_WATT_HOUR}`
-							: `${Utils.toNum((data.battery2Energy * ((data.stateBattery2Soc?.toNum() - data.batteryTwoShutdown) / 100)) / 1000, 2)} ${UnitOfEnergy.KILO_WATT_HOUR}`,
+							? `${Utils.formatNumberLocale(
+									Utils.toNum(
+										(data.battery2Energy *
+											(data.stateBattery2Soc.toNum() / 100)) /
+											1000,
+										2,
+									),
+									2,
+								)} ${UnitOfEnergy.KILO_WATT_HOUR}`
+							: `${Utils.formatNumberLocale(
+									Utils.toNum(
+										(data.battery2Energy *
+											((data.stateBattery2Soc?.toNum() -
+												data.batteryTwoShutdown) /
+												100)) /
+											1000,
+										2,
+									),
+									2,
+								)} ${UnitOfEnergy.KILO_WATT_HOUR}`,
 						true,
 					)}
 				</svg>
@@ -365,7 +421,7 @@ export const renderBatteryElements = (
 							!config.show_battery,
 						`${largeFont !== true ? 'st14' : 'st4'} st8`,
 						battery2Colour,
-						`${data.battery2Voltage} ${UnitOfElectricPotential.VOLT}`,
+						`${Utils.formatNumberLocale(data.battery2Voltage, 1)} ${UnitOfElectricPotential.VOLT}`,
 						(e) => Utils.handlePopup(e, config.entities.battery2_voltage_183),
 						true,
 					)}
@@ -379,7 +435,12 @@ export const renderBatteryElements = (
 							!data.stateBattery2Current.isValid(),
 						`${largeFont !== true ? 'st14' : 'st4'} st8`,
 						battery2Colour,
-						`${config.battery2.show_absolute ? Math.abs(data.stateBattery2Current.toNum(1)) : data.stateBattery2Current.toNum(1)} ${UnitOfElectricalCurrent.AMPERE}`,
+						`${Utils.formatNumberLocale(
+							config.battery2.show_absolute
+								? Math.abs(Utils.toNum(data.stateBattery2Current.state, 1))
+								: Utils.toNum(data.stateBattery2Current.state, 1),
+							1,
+						)} ${UnitOfElectricalCurrent.AMPERE}`,
 						(e) => Utils.handlePopup(e, config.entities.battery2_current_191),
 						true,
 					)}
@@ -415,8 +476,26 @@ export const renderBatteryElements = (
 							: 'remaining-energy left-align',
 						battery2Colour,
 						!config.battery2.remaining_energy_to_shutdown
-							? `${Utils.toNum((data.battery2Energy * (data.stateBattery2Soc.toNum() / 100)) / 1000, 2)} ${UnitOfEnergy.KILO_WATT_HOUR}`
-							: `${Utils.toNum((data.battery2Energy * ((data.stateBattery2Soc?.toNum() - data.batteryTwoShutdown) / 100)) / 1000, 2)} ${UnitOfEnergy.KILO_WATT_HOUR}`,
+							? `${Utils.formatNumberLocale(
+									Utils.toNum(
+										(data.battery2Energy *
+											(data.stateBattery2Soc.toNum() / 100)) /
+											1000,
+										2,
+									),
+									2,
+								)} ${UnitOfEnergy.KILO_WATT_HOUR}`
+							: `${Utils.formatNumberLocale(
+									Utils.toNum(
+										(data.battery2Energy *
+											((data.stateBattery2Soc?.toNum() -
+												data.batteryTwoShutdown) /
+												100)) /
+											1000,
+										2,
+									),
+									2,
+								)} ${UnitOfEnergy.KILO_WATT_HOUR}`,
 						true,
 					)}
 					${renderText(
@@ -1065,8 +1144,26 @@ export const renderBatteryElements = (
 						'remaining-energy right-align',
 						batteryColour,
 						!config.battery.remaining_energy_to_shutdown
-							? `${Utils.toNum((data.batteryEnergy * (data.stateBatterySoc.toNum() / 100)) / 1000, 2)} ${UnitOfEnergy.KILO_WATT_HOUR}`
-							: `${Utils.toNum((data.batteryEnergy * ((data.stateBatterySoc?.toNum() - data.batteryOneShutdown) / 100)) / 1000, 2)} ${UnitOfEnergy.KILO_WATT_HOUR}`,
+							? `${Utils.formatNumberLocale(
+									Utils.toNum(
+										(data.batteryEnergy *
+											(data.stateBatterySoc.toNum() / 100)) /
+											1000,
+										2,
+									),
+									2,
+								)} ${UnitOfEnergy.KILO_WATT_HOUR}`
+							: `${Utils.formatNumberLocale(
+									Utils.toNum(
+										(data.batteryEnergy *
+											((data.stateBatterySoc?.toNum() -
+												data.batteryOneShutdown) /
+												100)) /
+											1000,
+										2,
+									),
+									2,
+								)} ${UnitOfEnergy.KILO_WATT_HOUR}`,
 						true,
 					)}
 				</svg>
@@ -1281,7 +1378,7 @@ export const renderBatteryElements = (
 							(compactMode && batteryCount === 2),
 						config.entities?.battery_temp_182 ? 'st3 left-align' : 'st12',
 						batteryColour,
-						`${data.stateBatteryTemp.toNum(1)}°`,
+						`${Utils.formatNumberLocale(data.stateBatteryTemp.toNum(1), 1)}°`,
 						(e) => Utils.handlePopup(e, config.entities.battery_temp_182),
 						true,
 					)}
@@ -1433,7 +1530,7 @@ export const renderBatteryElements = (
 							(compactMode && batteryCount === 2),
 						config.entities?.battery2_temp_182 ? 'st3 left-align' : 'st12',
 						battery2Colour,
-						`${data.stateBattery2Temp.toNum(1)}°`,
+						`${Utils.formatNumberLocale(data.stateBattery2Temp.toNum(1), 1)}°`,
 						(e) => Utils.handlePopup(e, config.entities.battery2_temp_182),
 						true,
 					)}

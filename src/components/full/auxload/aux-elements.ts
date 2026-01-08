@@ -381,7 +381,10 @@ export const renderAuxLoadElements = (
 				auxStatus === 'on' || auxStatus === '1'
 					? auxDynamicColour
 					: data.auxOffColour,
-				`${data.stateAuxLoad1Extra.toNum(1)} ${data.stateAuxLoad1Extra?.getUOM()}`,
+				`${Utils.formatNumberLocale(
+					data.stateAuxLoad1Extra.toNum(1),
+					1,
+				)} ${data.stateAuxLoad1Extra?.getUOM()}`,
 				(e) => Utils.handlePopup(e, config.entities.aux_load1_extra),
 				true,
 			)}
@@ -394,7 +397,10 @@ export const renderAuxLoadElements = (
 					config.entities.aux_load1_extra,
 				'st3 st8',
 				data.auxDynamicColourLoad1,
-				`${data.stateAuxLoad1Extra.toNum(1)} ${data.stateAuxLoad1Extra?.getUOM()}`,
+				`${Utils.formatNumberLocale(
+					data.stateAuxLoad1Extra.toNum(1),
+					1,
+				)} ${data.stateAuxLoad1Extra?.getUOM()}`,
 				(e) => Utils.handlePopup(e, config.entities.aux_load1_extra),
 			)}
 			${createTextWithPopup(
@@ -406,7 +412,10 @@ export const renderAuxLoadElements = (
 					!config.entities.aux_load2_extra,
 				'st3 st8',
 				data.auxDynamicColourLoad2,
-				`${data.stateAuxLoad2Extra.toNum(1)} ${data.stateAuxLoad2Extra?.getUOM()}`,
+				`${Utils.formatNumberLocale(
+					data.stateAuxLoad2Extra.toNum(1),
+					1,
+				)} ${data.stateAuxLoad2Extra?.getUOM()}`,
 				(e) => Utils.handlePopup(e, config.entities.aux_load2_extra),
 				true,
 			)}
