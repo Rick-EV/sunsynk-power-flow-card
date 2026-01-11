@@ -662,7 +662,10 @@ export const renderGridElements = (
 													auto_scale
 														? `${
 																config.grid.show_absolute
-																	? `${Math.abs(parseFloat(Utils.convertValue(totalGridPower, decimalPlaces)))} ${Utils.convertValue(totalGridPower, decimalPlaces).split(' ')[1]}`
+																	? Utils.convertValue(
+																			Math.abs(totalGridPower),
+																			decimalPlaces,
+																		) || '0'
 																	: Utils.convertValue(
 																			totalGridPower,
 																			decimalPlaces,
@@ -691,7 +694,10 @@ export const renderGridElements = (
 													auto_scale
 														? `${
 																config.grid.show_absolute
-																	? `${Math.abs(parseFloat(Utils.convertValue(totalGridPower, decimalPlaces)))} ${Utils.convertValue(totalGridPower, decimalPlaces).split(' ')[1]}`
+																	? Utils.convertValue(
+																			Math.abs(totalGridPower),
+																			decimalPlaces,
+																		) || '0'
 																	: Utils.convertValue(
 																			totalGridPower,
 																			decimalPlaces,
@@ -715,7 +721,10 @@ export const renderGridElements = (
 											auto_scale
 												? `${
 														config.grid.show_absolute
-															? `${Math.abs(parseFloat(Utils.convertValue(totalGridPower, decimalPlaces)))} ${Utils.convertValue(totalGridPower, decimalPlaces).split(' ')[1]}`
+															? Utils.convertValue(
+																	Math.abs(totalGridPower),
+																	decimalPlaces,
+																) || '0'
 															: Utils.convertValue(
 																	totalGridPower,
 																	decimalPlaces,
@@ -858,7 +867,10 @@ export const renderGridElements = (
 				auto_scale
 					? `${
 							config.grid.show_absolute
-								? `${Math.abs(parseFloat(Utils.convertValue(autoScaledGridPower, decimalPlaces)))} ${Utils.convertValue(autoScaledGridPower, decimalPlaces).split(' ')[1]}`
+								? Utils.convertValue(
+										Math.abs(autoScaledGridPower),
+										decimalPlaces,
+									) || '0'
 								: Utils.convertValue(autoScaledGridPower, decimalPlaces) || 0
 						}`
 					: `${

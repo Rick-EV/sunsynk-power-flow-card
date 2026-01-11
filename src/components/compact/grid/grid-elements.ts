@@ -61,7 +61,7 @@ const renderGridTotalPower = (
 	if (auto_scale) {
 		const convertedValue = Utils.convertValue(totalGridPower, decimalPlaces);
 		powerValue = show_absolute
-			? `${Math.abs(parseFloat(convertedValue))} ${convertedValue.split(' ')[1]}`
+			? Utils.convertValue(Math.abs(totalGridPower), decimalPlaces) || '0'
 			: convertedValue || '0';
 	} else {
 		powerValue = show_absolute ? Math.abs(totalGridPower) : totalGridPower || 0;

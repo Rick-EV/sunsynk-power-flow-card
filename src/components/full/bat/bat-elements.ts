@@ -906,7 +906,8 @@ export const renderBatteryElements = (
 					auto_scale
 						? `${
 								show_absolute
-									? `${Math.abs(parseFloat(Utils.convertValue(batteryPower, decimalPlaces)))} ${Utils.convertValue(batteryPower, decimalPlaces).split(' ')[1]}`
+									? Utils.convertValue(Math.abs(batteryPower), decimalPlaces) ||
+										'0'
 									: Utils.convertValue(batteryPower, decimalPlaces) || '0'
 							}`
 						: `${
@@ -979,7 +980,10 @@ export const renderBatteryElements = (
 					config.battery2.auto_scale
 						? `${
 								config.battery2.show_absolute
-									? `${Math.abs(parseFloat(Utils.convertValue(battery2Power, decimalPlaces)))} ${Utils.convertValue(battery2Power, decimalPlaces).split(' ')[1]}`
+									? Utils.convertValue(
+											Math.abs(battery2Power),
+											decimalPlaces,
+										) || '0'
 									: Utils.convertValue(battery2Power, decimalPlaces) || '0'
 							}`
 						: `${
