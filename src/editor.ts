@@ -27,6 +27,11 @@ export class SunSynkCardEditor
 	@property() private _config!: sunsynkPowerFlowCardConfig;
 	@property() lovelace?: LovelaceConfig;
 
+	// Cache for performance
+	private _cachedSanitizedConfig?: sunsynkPowerFlowCardConfig;
+	private _cachedSchema?: unknown[];
+	private _lastConfigHash?: string;
+
 	static get styles() {
 		return css`
 			:host {
@@ -229,6 +234,15 @@ export class SunSynkCardEditor
 		}
 	};
 
+	// Simple hash function for config change detection
+	private _hashConfig(config: sunsynkPowerFlowCardConfig): string {
+		try {
+			return JSON.stringify(config);
+		} catch {
+			return String(Date.now());
+		}
+	}
+
 	// Humanize a schema name like "inverter_voltage_154" -> "Inverter Voltage 154"
 	private _prettyLabel(name: string): string {
 		return name.replace(/_/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase());
@@ -392,6 +406,16 @@ export class SunSynkCardEditor
 
 	// Return a sanitized config so ha-form color_rgb selectors receive proper [r,g,b] values
 	private _sanitizedConfig(): sunsynkPowerFlowCardConfig {
+		const configHash = this._hashConfig(this._config);
+
+		// Return cached version if config hasn't changed
+		if (this._cachedSanitizedConfig && this._lastConfigHash === configHash) {
+			return this._cachedSanitizedConfig;
+		}
+
+		console.log('[EDITOR PERF] _sanitizedConfig started (cache miss)');
+		const startTime = performance.now();
+
 		const c = this._config;
 		const copyBase = this._config as unknown as Record<string, unknown>;
 		const copy: Record<string, unknown> = { ...copyBase };
@@ -478,10 +502,23 @@ export class SunSynkCardEditor
 					undefined,
 			};
 		}
-		return copy as unknown as sunsynkPowerFlowCardConfig;
+
+		const endTime = performance.now();
+		console.log(
+			`[EDITOR PERF] _sanitizedConfig completed in ${(endTime - startTime).toFixed(2)}ms`,
+		);
+
+		// Cache the result
+		this._cachedSanitizedConfig = copy as unknown as sunsynkPowerFlowCardConfig;
+		this._lastConfigHash = configHash;
+
+		return this._cachedSanitizedConfig;
 	}
 
 	public setConfig(config: sunsynkPowerFlowCardConfig): void {
+		console.log('[EDITOR PERF] setConfig started');
+		const startTime = performance.now();
+
 		// Migrate any existing *_colour arrays/objects in incoming config to hex strings
 		const clone = JSON.parse(JSON.stringify(config)) as Record<string, unknown>;
 		const visit = (obj: unknown): unknown => {
@@ -508,6 +545,11 @@ export class SunSynkCardEditor
 			...this._config,
 			...(clone as unknown as sunsynkPowerFlowCardConfig),
 		};
+
+		const endTime = performance.now();
+		console.log(
+			`[EDITOR PERF] setConfig completed in ${(endTime - startTime).toFixed(2)}ms`,
+		);
 	}
 
 	protected render(): TemplateResult | void {
@@ -1868,6 +1910,9 @@ export class SunSynkCardEditor
 
 	private _emitConfig(config: sunsynkPowerFlowCardConfig): void {
 		this._config = config;
+		// Clear cache when config changes
+		this._cachedSanitizedConfig = undefined;
+		this._lastConfigHash = undefined;
 		fireEvent(this, 'config-changed', { config });
 	}
 
@@ -1947,6 +1992,9 @@ export class SunSynkCardEditor
 	}
 
 	private _valueChanged(ev: CustomEvent): void {
+		console.log('[EDITOR PERF] _valueChanged started');
+		const startTime = performance.now();
+
 		// ha-form returns color_rgb as arrays or {r,g,b}; ensure all '*_colour' values become hex strings before emitting
 		const v = ev.detail.value as Record<string, unknown>;
 		// IMPORTANT: do NOT mutate v (the form's live value). Clone before normalization to avoid breaking the picker UI.
@@ -2018,5 +2066,10 @@ export class SunSynkCardEditor
 		}
 		// Update local config and emit cloned hex-normalized config; this keeps the form's RGB value intact
 		this._emitConfig(out as unknown as sunsynkPowerFlowCardConfig);
+
+		const endTime = performance.now();
+		console.log(
+			`[EDITOR PERF] _valueChanged completed in ${(endTime - startTime).toFixed(2)}ms`,
+		);
 	}
 }
