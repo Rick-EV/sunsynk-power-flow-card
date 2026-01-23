@@ -29,7 +29,6 @@ export class SunSynkCardEditor
 
 	// Cache for performance
 	private _cachedSanitizedConfig?: sunsynkPowerFlowCardConfig;
-	private _cachedSchema?: unknown[];
 	private _lastConfigHash?: string;
 
 	// Static color name mapping (avoid recreating on every call)
@@ -46,6 +45,30 @@ export class SunSynkCardEditor
 		black: '#000000',
 		white: '#ffffff',
 	};
+
+	// Precompiled regex patterns for helper text matching (avoid recreating on every call)
+	private static readonly PATTERN_LOAD_NAME = /^load\d+_name$/;
+	private static readonly PATTERN_LOAD_ICON = /^load\d+_icon$/;
+	private static readonly PATTERN_LOAD_SWITCH = /^load\d+_switch$/;
+	private static readonly PATTERN_LOAD_THRESHOLD = /^load\d+_max_threshold$/;
+	private static readonly PATTERN_AUX_LOAD_NAME = /^aux_load\d+_name$/;
+	private static readonly PATTERN_AUX_LOAD_ICON = /^aux_load\d+_icon$/;
+	private static readonly PATTERN_PV_NAME = /^pv[1-6]_name$/;
+	private static readonly PATTERN_SHOW_SECTION =
+		/^show_(inverter|battery|battery2|solar|load|grid)$/;
+	private static readonly PATTERN_SHOW_DAILY = /^show_daily(_.*)?$/;
+	private static readonly PATTERN_ANY_NAME = /^.*_name$/;
+	private static readonly PATTERN_DYNAMIC_ICON = /dynamic_icon$/;
+	private static readonly PATTERN_ANY_SWITCH = /^.*_switch$/;
+	private static readonly PATTERN_MAX_THRESHOLD = /^.*_max_threshold$/;
+	private static readonly PATTERN_DYNAMIC_COLOUR = /dynamic_colour$/;
+	private static readonly PATTERN_ANY_COLOUR = /^.*_colour$/;
+	private static readonly PATTERN_OFF_COLOUR = /^.*_off_colour$/;
+	private static readonly PATTERN_MAX_POWER = /^.*_max_power$/;
+
+	// Precompiled regex for color normalization
+	private static readonly PATTERN_COLOUR_SUFFIX = /colour$/i;
+	private static readonly PATTERN_DYNAMIC_COLOUR_SUFFIX = /dynamic_colour$/i;
 
 	// Utility: Parse unknown to finite number
 	private static _toFiniteNum(x: unknown): number | undefined {
@@ -92,43 +115,48 @@ export class SunSynkCardEditor
 		}
 
 		// Pattern-based helper hints for dynamic load/aux subfields
-		if (/^load\d+_name$/.test(name)) return 'Label for additional load.';
-		if (/^load\d+_icon$/.test(name))
+		if (SunSynkCardEditor.PATTERN_LOAD_NAME.test(name))
+			return 'Label for additional load.';
+		if (SunSynkCardEditor.PATTERN_LOAD_ICON.test(name))
 			return 'Additional load icon (Can be set via template sensor).';
-		if (/^load\d+_switch$/.test(name))
+		if (SunSynkCardEditor.PATTERN_LOAD_SWITCH.test(name))
 			return 'Switch entity to control this additional load (optional).';
-		if (/^load\d+_max_threshold$/.test(name))
+		if (SunSynkCardEditor.PATTERN_LOAD_THRESHOLD.test(name))
 			return 'Set the threshold that will activate the Max Colour.';
-		if (/^aux_load\d+_name$/.test(name)) return 'Label for auxiliary load.';
-		if (/^aux_load\d+_icon$/.test(name))
+		if (SunSynkCardEditor.PATTERN_AUX_LOAD_NAME.test(name))
+			return 'Label for auxiliary load.';
+		if (SunSynkCardEditor.PATTERN_AUX_LOAD_ICON.test(name))
 			return 'Icon will be used for this auxiliary load.';
 
 		// Global patterns across sections (safe and generic)
-		if (/^pv[1-6]_name$/.test(name)) return 'Custom label for a PV input.';
-		if (/^mppts$/.test(name))
+		if (SunSynkCardEditor.PATTERN_PV_NAME.test(name))
+			return 'Custom label for a PV input.';
+		if (name === 'mppts')
 			return 'Number of MPPT inputs available on your inverter.';
-		if (/^three_phase$/.test(name))
+		if (name === 'three_phase')
 			return 'Enable if your system/card should display in three-phase mode.';
-		if (/^show_(inverter|battery|battery2|solar|load|grid)$/.test(name))
+		if (SunSynkCardEditor.PATTERN_SHOW_SECTION.test(name))
 			return 'Show or hide this section in the card.';
-		if (/^show_daily(_.*)?$/.test(name))
+		if (SunSynkCardEditor.PATTERN_SHOW_DAILY.test(name))
 			return 'Display daily energy on the card.';
-		if (/^auto_scale$/.test(name))
+		if (name === 'auto_scale')
 			return 'Automatically scale values based on recent ranges.';
-		if (/^.*_name$/.test(name)) return 'Custom label shown in the UI.';
-		if (/dynamic_icon$/.test(name))
+		if (SunSynkCardEditor.PATTERN_ANY_NAME.test(name))
+			return 'Custom label shown in the UI.';
+		if (SunSynkCardEditor.PATTERN_DYNAMIC_ICON.test(name))
 			return 'The icon will change to represent power source.';
-		if (/^.*_switch$/.test(name))
+		if (SunSynkCardEditor.PATTERN_ANY_SWITCH.test(name))
 			return 'Optional switch entity to control this element.';
-		if (/^.*_max_threshold$/.test(name))
+		if (SunSynkCardEditor.PATTERN_MAX_THRESHOLD.test(name))
 			return 'Maximum threshold used for progress/flow scaling.';
 		// Must come before the generic *_colour rule; match both 'dynamic_colour' and '*_dynamic_colour'
-		if (/dynamic_colour$/.test(name))
+		if (SunSynkCardEditor.PATTERN_DYNAMIC_COLOUR.test(name))
 			return 'Change colour dynamically based on power level.';
-		if (/^.*_colour$/.test(name)) return 'Primary colour for this element.';
-		if (/^.*_off_colour$/.test(name))
+		if (SunSynkCardEditor.PATTERN_ANY_COLOUR.test(name))
+			return 'Primary colour for this element.';
+		if (SunSynkCardEditor.PATTERN_OFF_COLOUR.test(name))
 			return 'Colour used when the element is off/idle.';
-		if (/^.*_max_power$/.test(name))
+		if (SunSynkCardEditor.PATTERN_MAX_POWER.test(name))
 			return 'Optional cap used for scaling and progress calculations.';
 		switch (name) {
 			case 'large_font':
@@ -405,7 +433,7 @@ export class SunSynkCardEditor
 	}
 
 	// Safely extract a string value from an object by key
-	private _getStr(obj: unknown, key: string): string | undefined {
+	private static _getStr(obj: unknown, key: string): string | undefined {
 		if (!obj || typeof obj !== 'object') return undefined;
 		const val = (obj as Record<string, unknown>)[key];
 		return typeof val === 'string' ? val : undefined;
@@ -419,8 +447,8 @@ export class SunSynkCardEditor
 		for (const [k, val] of Object.entries(rec)) {
 			if (
 				typeof k === 'string' &&
-				/colour$/i.test(k) &&
-				!/dynamic_colour$/i.test(k)
+				SunSynkCardEditor.PATTERN_COLOUR_SUFFIX.test(k) &&
+				!SunSynkCardEditor.PATTERN_DYNAMIC_COLOUR_SUFFIX.test(k)
 			) {
 				rec[k] = this._normalizeColor(val) ?? undefined;
 			} else if (val && typeof val === 'object') {
@@ -428,6 +456,19 @@ export class SunSynkCardEditor
 			}
 		}
 		return rec;
+	}
+
+	// Helper to convert colour fields in a section to RGB format for ha-form
+	private _convertSectionColours(
+		section: Record<string, unknown> | undefined,
+		colourFields: string[],
+	): Record<string, unknown> | undefined {
+		if (!section) return undefined;
+		const result = { ...section };
+		for (const field of colourFields) {
+			result[field] = this._toRgb(section[field]) ?? undefined;
+		}
+		return result;
 	}
 
 	// Return a sanitized config so ha-form color_rgb selectors receive proper [r,g,b] values
@@ -440,91 +481,45 @@ export class SunSynkCardEditor
 		}
 
 		const c = this._config;
-		const copyBase = this._config as unknown as Record<string, unknown>;
-		const copy: Record<string, unknown> = { ...copyBase };
+		const copy: Record<string, unknown> = {
+			...(this._config as unknown as Record<string, unknown>),
+		};
+
 		// top-level title colour as RGB object
-		const titleColour = (c as unknown as Record<string, unknown>)[
-			'title_colour'
-		];
-		copy.title_colour = this._toRgb(titleColour) ?? undefined;
-		// inverter
-		if (c.inverter) {
-			copy.inverter = {
-				...c.inverter,
-				colour:
-					this._toRgb((c.inverter as Record<string, unknown>).colour) ??
-					undefined,
-			};
-		}
-		// solar
-		if (c.solar) {
-			copy.solar = {
-				...c.solar,
-				colour:
-					this._toRgb((c.solar as Record<string, unknown>).colour) ?? undefined,
-			};
-		}
-		// battery 1
-		if (c.battery) {
-			copy.battery = {
-				...c.battery,
-				colour:
-					this._toRgb((c.battery as Record<string, unknown>).colour) ??
-					undefined,
-				charge_colour:
-					this._toRgb((c.battery as Record<string, unknown>).charge_colour) ??
-					undefined,
-			};
-		}
-		// battery 2
-		if (c.battery2) {
-			copy.battery2 = {
-				...c.battery2,
-				colour:
-					this._toRgb((c.battery2 as Record<string, unknown>).colour) ??
-					undefined,
-				charge_colour:
-					this._toRgb((c.battery2 as Record<string, unknown>).charge_colour) ??
-					undefined,
-			};
-		}
-		// load
-		if (c.load) {
-			copy.load = {
-				...c.load,
-				colour:
-					this._toRgb((c.load as Record<string, unknown>).colour) ?? undefined,
-				off_colour:
-					this._toRgb((c.load as Record<string, unknown>).off_colour) ??
-					undefined,
-				max_colour:
-					this._toRgb((c.load as Record<string, unknown>).max_colour) ??
-					undefined,
-				aux_colour:
-					this._toRgb((c.load as Record<string, unknown>).aux_colour) ??
-					undefined,
-				aux_off_colour:
-					this._toRgb((c.load as Record<string, unknown>).aux_off_colour) ??
-					undefined,
-			};
-		}
-		// grid
-		if (c.grid) {
-			copy.grid = {
-				...c.grid,
-				colour:
-					this._toRgb((c.grid as Record<string, unknown>).colour) ?? undefined,
-				no_grid_colour:
-					this._toRgb((c.grid as Record<string, unknown>).no_grid_colour) ??
-					undefined,
-				export_colour:
-					this._toRgb((c.grid as Record<string, unknown>).export_colour) ??
-					undefined,
-				grid_off_colour:
-					this._toRgb((c.grid as Record<string, unknown>).grid_off_colour) ??
-					undefined,
-			};
-		}
+		copy.title_colour =
+			this._toRgb((c as unknown as Record<string, unknown>)['title_colour']) ??
+			undefined;
+
+		// Convert section colours to RGB format
+		copy.inverter = this._convertSectionColours(
+			c.inverter as Record<string, unknown>,
+			['colour'],
+		);
+		copy.solar = this._convertSectionColours(
+			c.solar as Record<string, unknown>,
+			['colour'],
+		);
+		copy.battery = this._convertSectionColours(
+			c.battery as Record<string, unknown>,
+			['colour', 'charge_colour'],
+		);
+		copy.battery2 = this._convertSectionColours(
+			c.battery2 as Record<string, unknown>,
+			['colour', 'charge_colour'],
+		);
+		copy.load = this._convertSectionColours(c.load as Record<string, unknown>, [
+			'colour',
+			'off_colour',
+			'max_colour',
+			'aux_colour',
+			'aux_off_colour',
+		]);
+		copy.grid = this._convertSectionColours(c.grid as Record<string, unknown>, [
+			'colour',
+			'no_grid_colour',
+			'export_colour',
+			'grid_off_colour',
+		]);
 
 		// Cache the result
 		this._cachedSanitizedConfig = copy as unknown as sunsynkPowerFlowCardConfig;
