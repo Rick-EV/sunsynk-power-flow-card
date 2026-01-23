@@ -32,6 +32,36 @@ export class SunSynkCardEditor
 	private _cachedSchema?: unknown[];
 	private _lastConfigHash?: string;
 
+	// Static color name mapping (avoid recreating on every call)
+	private static readonly COLOR_NAME_MAP: Record<string, string> = {
+		grey: '#9e9e9e',
+		gray: '#9e9e9e',
+		pink: '#ffc0cb',
+		orange: '#ffa500',
+		red: '#ff0000',
+		green: '#008000',
+		blue: '#0000ff',
+		yellow: '#ffff00',
+		purple: '#800080',
+		black: '#000000',
+		white: '#ffffff',
+	};
+
+	// Utility: Parse unknown to finite number
+	private static _toFiniteNum(x: unknown): number | undefined {
+		if (typeof x === 'number' && Number.isFinite(x)) return x;
+		if (typeof x === 'string' && x.trim() !== '') {
+			const n = Number(x);
+			return Number.isFinite(n) ? n : undefined;
+		}
+		return undefined;
+	}
+
+	// Utility: Clamp to 0-255 range
+	private static _clamp255(n: number): number {
+		return Math.max(0, Math.min(255, Math.round(n)));
+	}
+
 	static get styles() {
 		return css`
 			:host {
@@ -280,40 +310,19 @@ export class SunSynkCardEditor
 				g = v.g;
 				b = v.b;
 			}
-			const toNum = (x: unknown): number | undefined => {
-				if (typeof x === 'number' && Number.isFinite(x)) return x;
-				if (typeof x === 'string' && x.trim() !== '') {
-					const n = Number(x);
-					return Number.isFinite(n) ? n : undefined;
-				}
-				return undefined;
-			};
-			const rr = toNum(r);
-			const gg = toNum(g);
-			const bb = toNum(b);
+			const rr = SunSynkCardEditor._toFiniteNum(r);
+			const gg = SunSynkCardEditor._toFiniteNum(g);
+			const bb = SunSynkCardEditor._toFiniteNum(b);
 			if (rr === undefined || gg === undefined || bb === undefined)
 				return undefined;
-			const clamp = (n: number) => Math.max(0, Math.min(255, Math.round(n)));
-			const toHex = (n: number) => clamp(n).toString(16).padStart(2, '0');
+			const toHex = (n: number) =>
+				SunSynkCardEditor._clamp255(n).toString(16).padStart(2, '0');
 			return `#${toHex(rr)}${toHex(gg)}${toHex(bb)}`;
 		}
 		if (typeof value !== 'string') return undefined;
 		const hex = value.trim();
-		const nameMap: Record<string, string> = {
-			grey: '#9e9e9e',
-			gray: '#9e9e9e',
-			pink: '#ffc0cb',
-			orange: '#ffa500',
-			red: '#ff0000',
-			green: '#008000',
-			blue: '#0000ff',
-			yellow: '#ffff00',
-			purple: '#800080',
-			black: '#000000',
-			white: '#ffffff',
-		};
 		const lower = hex.toLowerCase();
-		const fromMap = nameMap[lower];
+		const fromMap = SunSynkCardEditor.COLOR_NAME_MAP[lower];
 		let candidate = fromMap ?? hex;
 		// Expand #rgb shorthand to #rrggbb
 		const m = /^#([0-9a-f]{3})$/i.exec(candidate);
@@ -327,35 +336,33 @@ export class SunSynkCardEditor
 	// Convert supported inputs into [r, g, b] array for ha-form color_rgb
 	private _toRgb(value?: unknown): [number, number, number] | undefined {
 		if (value == null) return undefined;
-		const toChan = (x: unknown): number | undefined => {
-			if (typeof x === 'number' && Number.isFinite(x)) return x;
-			if (typeof x === 'string' && x.trim() !== '') {
-				const n = Number(x);
-				return Number.isFinite(n) ? n : undefined;
-			}
-			return undefined;
-		};
 
 		// Array [r,g,b]
 		if (Array.isArray(value) && value.length >= 3) {
 			const [r, g, b] = value as unknown[];
-			const rr = toChan(r);
-			const gg = toChan(g);
-			const bb = toChan(b);
+			const rr = SunSynkCardEditor._toFiniteNum(r);
+			const gg = SunSynkCardEditor._toFiniteNum(g);
+			const bb = SunSynkCardEditor._toFiniteNum(b);
 			if (rr == null || gg == null || bb == null) return undefined;
-			const clamp = (n: number) => Math.max(0, Math.min(255, Math.round(n)));
-			return [clamp(rr), clamp(gg), clamp(bb)];
+			return [
+				SunSynkCardEditor._clamp255(rr),
+				SunSynkCardEditor._clamp255(gg),
+				SunSynkCardEditor._clamp255(bb),
+			];
 		}
 
 		// Object { r,g,b }
 		if (typeof value === 'object') {
 			const v = value as Record<string, unknown>;
-			const rr = toChan(v.r);
-			const gg = toChan(v.g);
-			const bb = toChan(v.b);
+			const rr = SunSynkCardEditor._toFiniteNum(v.r);
+			const gg = SunSynkCardEditor._toFiniteNum(v.g);
+			const bb = SunSynkCardEditor._toFiniteNum(v.b);
 			if (rr != null && gg != null && bb != null) {
-				const clamp = (n: number) => Math.max(0, Math.min(255, Math.round(n)));
-				return [clamp(rr), clamp(gg), clamp(bb)];
+				return [
+					SunSynkCardEditor._clamp255(rr),
+					SunSynkCardEditor._clamp255(gg),
+					SunSynkCardEditor._clamp255(bb),
+				];
 			}
 		}
 
@@ -366,11 +373,11 @@ export class SunSynkCardEditor
 			const m =
 				/^rgb\s*\(\s*(\d{1,3})\s*,\s*(\d{1,3})\s*,\s*(\d{1,3})\s*\)$/.exec(s);
 			if (m) {
-				const r = Number(m[1]);
-				const g = Number(m[2]);
-				const b = Number(m[3]);
-				const clamp = (n: number) => Math.max(0, Math.min(255, Math.round(n)));
-				return [clamp(r), clamp(g), clamp(b)];
+				return [
+					SunSynkCardEditor._clamp255(Number(m[1])),
+					SunSynkCardEditor._clamp255(Number(m[2])),
+					SunSynkCardEditor._clamp255(Number(m[3])),
+				];
 			}
 			const hex = this._normalizeColor(s);
 			if (!hex) return undefined;
@@ -404,6 +411,25 @@ export class SunSynkCardEditor
 		return typeof val === 'string' ? val : undefined;
 	}
 
+	// Shared color normalization visitor - recursively converts colour values to hex strings
+	private _normalizeColorsInObject(obj: unknown): unknown {
+		if (Array.isArray(obj)) return obj;
+		if (!obj || typeof obj !== 'object') return obj;
+		const rec = obj as Record<string, unknown>;
+		for (const [k, val] of Object.entries(rec)) {
+			if (
+				typeof k === 'string' &&
+				/colour$/i.test(k) &&
+				!/dynamic_colour$/i.test(k)
+			) {
+				rec[k] = this._normalizeColor(val) ?? undefined;
+			} else if (val && typeof val === 'object') {
+				rec[k] = this._normalizeColorsInObject(val) as unknown;
+			}
+		}
+		return rec;
+	}
+
 	// Return a sanitized config so ha-form color_rgb selectors receive proper [r,g,b] values
 	private _sanitizedConfig(): sunsynkPowerFlowCardConfig {
 		const configHash = this._hashConfig(this._config);
@@ -412,9 +438,6 @@ export class SunSynkCardEditor
 		if (this._cachedSanitizedConfig && this._lastConfigHash === configHash) {
 			return this._cachedSanitizedConfig;
 		}
-
-		console.log('[EDITOR PERF] _sanitizedConfig started (cache miss)');
-		const startTime = performance.now();
 
 		const c = this._config;
 		const copyBase = this._config as unknown as Record<string, unknown>;
@@ -503,11 +526,6 @@ export class SunSynkCardEditor
 			};
 		}
 
-		const endTime = performance.now();
-		console.log(
-			`[EDITOR PERF] _sanitizedConfig completed in ${(endTime - startTime).toFixed(2)}ms`,
-		);
-
 		// Cache the result
 		this._cachedSanitizedConfig = copy as unknown as sunsynkPowerFlowCardConfig;
 		this._lastConfigHash = configHash;
@@ -516,40 +534,14 @@ export class SunSynkCardEditor
 	}
 
 	public setConfig(config: sunsynkPowerFlowCardConfig): void {
-		console.log('[EDITOR PERF] setConfig started');
-		const startTime = performance.now();
-
 		// Migrate any existing *_colour arrays/objects in incoming config to hex strings
 		const clone = JSON.parse(JSON.stringify(config)) as Record<string, unknown>;
-		const visit = (obj: unknown): unknown => {
-			if (Array.isArray(obj)) return obj;
-			if (!obj || typeof obj !== 'object') return obj;
-			const rec = obj as Record<string, unknown>;
-			for (const [k, val] of Object.entries(rec)) {
-				if (
-					typeof k === 'string' &&
-					/colour$/i.test(k) &&
-					!/dynamic_colour$/i.test(k)
-				) {
-					const hex = this._normalizeColor(val);
-					rec[k] = hex ?? undefined;
-				} else if (val && typeof val === 'object') {
-					rec[k] = visit(val) as unknown;
-				}
-			}
-			return rec;
-		};
-		visit(clone);
+		this._normalizeColorsInObject(clone);
 		this._config = {
 			...defaults,
 			...this._config,
 			...(clone as unknown as sunsynkPowerFlowCardConfig),
 		};
-
-		const endTime = performance.now();
-		console.log(
-			`[EDITOR PERF] setConfig completed in ${(endTime - startTime).toFixed(2)}ms`,
-		);
 	}
 
 	protected render(): TemplateResult | void {
@@ -1992,84 +1984,40 @@ export class SunSynkCardEditor
 	}
 
 	private _valueChanged(ev: CustomEvent): void {
-		console.log('[EDITOR PERF] _valueChanged started');
-		const startTime = performance.now();
-
 		// ha-form returns color_rgb as arrays or {r,g,b}; ensure all '*_colour' values become hex strings before emitting
 		const v = ev.detail.value as Record<string, unknown>;
 		// IMPORTANT: do NOT mutate v (the form's live value). Clone before normalization to avoid breaking the picker UI.
 		const out = JSON.parse(JSON.stringify(v)) as Record<string, unknown>;
-		const visit = (obj: unknown): unknown => {
-			if (Array.isArray(obj)) return obj; // leave non-colour arrays untouched at this level
-			if (!obj || typeof obj !== 'object') return obj;
-			const rec = obj as Record<string, unknown>;
-			for (const [k, val] of Object.entries(rec)) {
-				if (
-					typeof k === 'string' &&
-					/colour$/i.test(k) &&
-					!/dynamic_colour$/i.test(k)
-				) {
-					const hex = this._normalizeColor(val);
-					rec[k] = hex ?? undefined;
-				} else if (val && typeof val === 'object') {
-					rec[k] = visit(val) as unknown;
-				}
-			}
-			return rec;
-		};
-		visit(out);
+		this._normalizeColorsInObject(out);
 
 		// Normalize dynamic line width values if present
-		const clampInt = (
-			n: unknown,
-			min: number,
-			max: number,
-		): number | undefined => {
-			if (typeof n === 'number' && Number.isFinite(n))
-				return Math.max(min, Math.min(max, Math.round(n)));
-			if (typeof n === 'string' && n.trim() !== '') {
-				const m = Number(n);
-				if (Number.isFinite(m))
-					return Math.max(min, Math.min(max, Math.round(m)));
-			}
-			return undefined;
-		};
-		if (
-			out &&
-			typeof out === 'object' &&
-			(out as Record<string, unknown>).dynamic_line_width
-		) {
-			const max = clampInt(
-				(out as Record<string, unknown>).max_line_width,
-				1,
-				8,
-			);
-			const min = clampInt(
-				(out as Record<string, unknown>).min_line_width,
-				1,
-				8,
-			);
-			if (max !== undefined)
-				(out as Record<string, unknown>).max_line_width = max;
-			if (min !== undefined)
-				(out as Record<string, unknown>).min_line_width = min;
-			const curMax = (out as Record<string, number | undefined>).max_line_width;
-			const curMin = (out as Record<string, number | undefined>).min_line_width;
+		if (out && typeof out === 'object' && out.dynamic_line_width) {
+			const clampInt = (
+				n: unknown,
+				min: number,
+				max: number,
+			): number | undefined => {
+				const num = SunSynkCardEditor._toFiniteNum(n);
+				if (num !== undefined)
+					return Math.max(min, Math.min(max, Math.round(num)));
+				return undefined;
+			};
+			const max = clampInt(out.max_line_width, 1, 8);
+			const min = clampInt(out.min_line_width, 1, 8);
+			if (max !== undefined) out.max_line_width = max;
+			if (min !== undefined) out.min_line_width = min;
+			const curMax = out.max_line_width as number | undefined;
+			const curMin = out.min_line_width as number | undefined;
 			if (
 				typeof curMin === 'number' &&
 				typeof curMax === 'number' &&
 				curMin > curMax
 			) {
 				// If swapped, align min to max to keep consistent
-				(out as Record<string, number>).min_line_width = curMax;
+				out.min_line_width = curMax;
 			}
 		}
 		// Update local config and emit cloned hex-normalized config; this keeps the form's RGB value intact
 		this._emitConfig(out as unknown as sunsynkPowerFlowCardConfig);
-
-		const endTime = performance.now();
-		console.log(
-			`[EDITOR PERF] _valueChanged completed in ${(endTime - startTime).toFixed(2)}ms`,
-		);
 	}
 }
