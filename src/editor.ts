@@ -73,6 +73,88 @@ export class SunSynkCardEditor
 	private static readonly PATTERN_COLOUR_SUFFIX = /colour$/i;
 	private static readonly PATTERN_DYNAMIC_COLOUR_SUFFIX = /dynamic_colour$/i;
 
+	// Static lookup for help text (faster than switch-case)
+	private static readonly HELP_TEXT: Record<string, string> = {
+		large_font: 'Use a larger font for card entities.',
+		wide: 'Use a wide layout for the card.',
+		additional_loads: 'Number of additional loads to configure (0–6).',
+		colour: 'Primary colour for this element.',
+		efficiency:
+			'Show the effeciency of the mppts strings based on their max power.',
+		display_mode:
+			'Chose how to display solar information next to the sun icon.',
+		custom_label: 'Custom label shown in the UI.',
+		label_daily_grid_buy: 'Label for daily grid buy.',
+		label_daily_grid_sell: 'Label for daily grid sell.',
+		count: 'Number of batteries to display.',
+		energy: 'Total available energy of the battery in Wh.',
+		shutdown_soc: 'State of charge below which the battery is considered off.',
+		shutdown_soc_offgrid:
+			'State of charge below which the battery is considered off when off-grid.',
+		soc_end_of_charge:
+			'State of charge at which the battery is considered fully charged.',
+		invert_power: 'Invert the direction of power flow animation.',
+		hide_soc: 'Hide additional current program capacity (SOC) or shutdown SOC.',
+		show_absolute: 'Show absolute values for power.',
+		show_remaining_energy: 'Show remaining energy of the battery.',
+		remaining_energy_to_shutdown:
+			'Show remaining energy of the battery until it shuts down.',
+		invert_flow: 'Invert the direction of power flow.',
+		linear_gradient: 'Display battery SOC as a linear gradient.',
+		invert_load:
+			'Set to true if your sensor provides a negative number when the load is drawing power',
+		modern: 'Change inverter icon.',
+		invert_grid:
+			'Enable if your sensor provides a negative number for grid import and positive number for grid export.',
+		aux_loads: 'Number of auxiliary loads to configure (0–2).',
+		show_nonessential: 'Show non-essential loads.',
+		show_aux:
+			'Show the Aux subsection (separate auxiliary load configuration).',
+		label_daily_load:
+			'Alternate label for the daily load value displayed under Load.',
+		label_daily_chrg:
+			'Alternate label for the daily charge value displayed under Battery.',
+		label_daily_dischrg:
+			'Alternate label for the daily discharge value displayed under Battery.',
+		label_autarky:
+			'Alternate label for the autarky value displayed under Inverter.',
+		label_ratio: 'Alternat label for the ratio value displayed under Inverter.',
+		navigate: 'Optional navigation path to open when the icon is clicked.',
+		import_icon:
+			'Icon shown for the import flow. Can be set using a template sensor.',
+		export_icon:
+			'Icon shown for the export flow. Can be set using a template sensor.',
+		disconnected_icon:
+			'Icon shown when the grid is disconnected. Can be set using a template sensor.',
+		aux_name: 'Aux group title shown in the UI.',
+		aux_daily_name: 'Label used for daily Aux value.',
+		aux_type: 'Icon shown for the Aux group.',
+		invert_aux: 'Invert the direction of Aux flow arrows.',
+		show_absolute_aux: 'Show Aux values as absolute (no sign) for clarity.',
+		aux_dynamic_colour:
+			'Aux elements on the card will be greyed out if aux power is 0.',
+		aux_colour: 'Primary colour for Aux flow.',
+		aux_off_colour: 'Colour used when Aux path is off/idle.',
+		show_daily_aux: 'Display daily Aux energy beneath the Aux section.',
+		decimal_places: 'Number of decimal places for power values (0-3).',
+		decimal_places_energy: 'Number of decimal places for energy values (0-3).',
+		soc_decimal_places: 'Decimal places for State of Charge display (0-3).',
+		dynamic_line_width:
+			'Animate line widths based on power level. Disable for a flatter look.',
+		animation_speed: 'Adjusts the speed of flow animations. Higher = faster.',
+		off_threshold: 'Below this power value the path is considered off/idle.',
+		path_threshold:
+			'The colour of the path will change to the source colour if the percentage supply by a single source equals or exceeds this value.',
+		max_power: 'Optional cap used for scaling and progress calculations.',
+		title_size: "CSS font-size for title, e.g. '1.2em' or '18px'.",
+		card_height:
+			'Card height: text value (e.g. 360) or an entity providing a numeric height.',
+		card_width:
+			'Card width: text value (e.g. 640) or an entity providing a numeric width.',
+		center_no_grid:
+			'When Grid is hidden, shift and narrow the view to center Solar/Battery/Loads.',
+	};
+
 	// Utility: Parse unknown to finite number
 	private static _toFiniteNum(x: unknown): number | undefined {
 		if (typeof x === 'number' && Number.isFinite(x)) return x;
@@ -109,6 +191,9 @@ export class SunSynkCardEditor
 		if (!data || typeof data !== 'object') return undefined;
 		const name = (data as { name?: string }).name;
 		if (!name) return undefined;
+
+		/*
+		// Localization (commented out until help text is added to language files)
 		const key = `config.helper.${name}`;
 		try {
 			const localized = localize(key);
@@ -116,6 +201,7 @@ export class SunSynkCardEditor
 		} catch {
 			// fall through to defaults below when localization lookup fails
 		}
+		*/
 
 		// Pattern-based helper hints for dynamic load/aux subfields
 		if (SunSynkCardEditor.PATTERN_LOAD_NAME.test(name))
@@ -161,138 +247,19 @@ export class SunSynkCardEditor
 			return 'Colour used when the element is off/idle.';
 		if (SunSynkCardEditor.PATTERN_MAX_POWER.test(name))
 			return 'Optional cap used for scaling and progress calculations.';
-		switch (name) {
-			case 'large_font':
-				return 'Use a larger font for card entities.';
-			case 'wide':
-				return 'Use a wide layout for the card.';
-			case 'additional_loads':
-				return 'Number of additional loads to configure (0–6).';
-			case 'colour':
-				return 'Primary colour for this element.';
-			case 'efficiency':
-				return 'Show the effeciency of the mppts strings based on their max power.';
-			case 'display_mode':
-				return 'Chose how to display solar information next to the sun icon.';
-			case 'custom_label':
-				return 'Custom label shown in the UI.';
-			case 'label_daily_grid_buy':
-				return 'Label for daily grid buy.';
-			case 'label_daily_grid_sell':
-				return 'Label for daily grid sell.';
-			case 'count	':
-				return 'Number of batteries to display.';
-			case 'energy':
-				return 'Total available energy of the battery in Wh.';
-			case 'shutdown_soc':
-				return 'State of charge below which the battery is considered off.';
-			case 'shutdown_soc_offgrid':
-				return 'State of charge below which the battery is considered off when off-grid.';
-			case 'soc_end_of_charge':
-				return 'State of charge at which the battery is considered fully charged.';
-			case 'invert_power':
-				return 'Invert the direction of power flow animation.';
-			case 'hide_soc':
-				return 'Hide additional current program capacity (SOC) or shutdown SOC.';
-			case 'show_absolute':
-				return 'Show absolute values for power.';
-			case 'show_remaining_energy':
-				return 'Show remaining energy of the battery.';
-			case 'remaining_energy_to_shutdown':
-				return 'Show remaining energy of the battery until it shuts down.';
-			case 'invert_flow':
-				return 'Invert the direction of power flow.';
-			case 'linear_gradient':
-				return 'Display battery SOC as a linear gradient.';
-			case 'invert_load':
-				return 'Set to true if your sensor provides a negative number when the load is drawing power';
-			case 'modern':
-				return 'Change inverter icon.';
-			case 'invert_grid':
-				return 'Enable if your sensor provides a negative number for grid import and positive number for grid export.';
-			case 'aux_loads':
-				return 'Number of auxiliary loads to configure (0–2).';
-			case 'show_nonessential':
-				return 'Show non-essential loads.';
-			case 'show_aux':
-				return 'Show the Aux subsection (separate auxiliary load configuration).';
-			case 'label_daily_load':
-				return 'Alternate label for the daily load value displayed under Load.';
-			case 'label_daily_chrg':
-				return 'Alternate label for the daily charge value displayed under Battery.';
-			case 'label_daily_dischrg':
-				return 'Alternate label for the daily discharge value displayed under Battery.';
-			case 'label_autarky':
-				return 'Alternate label for the autarky value displayed under Inverter.';
-			case 'label_ratio':
-				return 'Alternat label for the ratio value displayed under Inverter.';
-			case 'navigate':
-				return 'Optional navigation path to open when the icon is clicked.';
-			case 'import_icon':
-				return 'Icon shown for the import flow. Can be set using a template sensor.';
-			case 'export_icon':
-				return 'Icon shown for the export flow. Can be set using a template sensor.';
-			case 'disconnected_icon':
-				return 'Icon shown when the grid is disconnected. Can be set using a template sensor.';
-			case 'aux_name':
-				return 'Aux group title shown in the UI.';
-			case 'aux_daily_name':
-				return 'Label used for daily Aux value.';
-			case 'aux_type':
-				return 'Icon shown for the Aux group.';
-			case 'invert_aux':
-				return 'Invert the direction of Aux flow arrows.';
-			case 'show_absolute_aux':
-				return 'Show Aux values as absolute (no sign) for clarity.';
-			case 'aux_dynamic_colour':
-				return 'Aux elements on the card will be greyed out if aux power is 0.';
-			case 'aux_colour':
-				return 'Primary colour for Aux flow.';
-			case 'aux_off_colour':
-				return 'Colour used when Aux path is off/idle.';
-			case 'show_daily_aux':
-				return 'Display daily Aux energy beneath the Aux section.';
-			case 'decimal_places':
-				return 'Number of decimal places for power values (0-3).';
-			case 'decimal_places_energy':
-				return 'Number of decimal places for energy values (0-3).';
-			case 'soc_decimal_places':
-				return 'Decimal places for State of Charge display (0-3).';
-			case 'dynamic_line_width':
-				return 'Animate line widths based on power level. Disable for a flatter look.';
-			case 'max_line_width': {
-				const min = Number(this._config?.min_line_width ?? 1);
-				const max = Number(this._config?.max_line_width ?? 1);
-				return min > max
-					? 'Warning: min_line_width is greater than max_line_width.'
-					: 'Maximum dynamic line width (1-8).';
-			}
-			case 'min_line_width': {
-				const min = Number(this._config?.min_line_width ?? 1);
-				const max = Number(this._config?.max_line_width ?? 1);
-				return min > max
-					? 'Warning: min_line_width is greater than max_line_width.'
-					: 'Minimum dynamic line width (1-8).';
-			}
-			case 'animation_speed':
-				return 'Adjusts the speed of flow animations. Higher = faster.';
-			case 'off_threshold':
-				return 'Below this power value the path is considered off/idle.';
-			case 'path_threshold':
-				return 'The colour of the path will change to the source colour if the percentage supply by a single source equals or exceeds this value.';
-			case 'max_power':
-				return 'Optional cap used for scaling and progress calculations.';
-			case 'title_size':
-				return "CSS font-size for title, e.g. '1.2em' or '18px'.";
-			case 'card_height':
-				return 'Card height: text value (e.g. 360) or an entity providing a numeric height.';
-			case 'card_width':
-				return 'Card width: text value (e.g. 640) or an entity providing a numeric width.';
-			case 'center_no_grid':
-				return 'When Grid is hidden, shift and narrow the view to center Solar/Battery/Loads.';
-			default:
-				return undefined;
+
+		// Static lookups (O(1))
+		if (name === 'max_line_width' || name === 'min_line_width') {
+			const min = Number(this._config?.min_line_width ?? 1);
+			const max = Number(this._config?.max_line_width ?? 1);
+			if (min > max)
+				return 'Warning: min_line_width is greater than max_line_width.';
+			return name === 'max_line_width'
+				? 'Maximum dynamic line width (1-8).'
+				: 'Minimum dynamic line width (1-8).';
 		}
+
+		return SunSynkCardEditor.HELP_TEXT[name];
 	};
 
 	// Humanize a schema name like "inverter_voltage_154" -> "Inverter Voltage 154"
