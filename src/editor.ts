@@ -29,7 +29,10 @@ export class SunSynkCardEditor
 
 	// Cache for performance
 	private _cachedSanitizedConfig?: sunsynkPowerFlowCardConfig;
-	private _lastConfigHash?: string;
+	private _configVersion = 0;
+	private _lastCachedVersion = -1;
+
+	private static readonly _labelCache = new Map<string, string>();
 
 	// Static color name mapping (avoid recreating on every call)
 	private static readonly COLOR_NAME_MAP: Record<string, string> = {
@@ -292,18 +295,15 @@ export class SunSynkCardEditor
 		}
 	};
 
-	// Simple hash function for config change detection
-	private _hashConfig(config: sunsynkPowerFlowCardConfig): string {
-		try {
-			return JSON.stringify(config);
-		} catch {
-			return String(Date.now());
-		}
-	}
-
 	// Humanize a schema name like "inverter_voltage_154" -> "Inverter Voltage 154"
 	private _prettyLabel(name: string): string {
-		return name.replace(/_/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase());
+		const cached = SunSynkCardEditor._labelCache.get(name);
+		if (cached) return cached;
+		const result = name
+			.replace(/_/g, ' ')
+			.replace(/\b\w/g, (c) => c.toUpperCase());
+		SunSynkCardEditor._labelCache.set(name, result);
+		return result;
 	}
 
 	// Safe localize with fallback (treat 'unknown'/'undefined' as missing)
@@ -316,10 +316,10 @@ export class SunSynkCardEditor
 					return v;
 				}
 			}
-			return fallback;
 		} catch {
-			return fallback;
+			// fall through to fallback
 		}
+		return fallback;
 	}
 
 	// Map common CSS color names to hex; accept string, {r,g,b} object, or [r,g,b] array; return undefined if invalid
@@ -473,10 +473,11 @@ export class SunSynkCardEditor
 
 	// Return a sanitized config so ha-form color_rgb selectors receive proper [r,g,b] values
 	private _sanitizedConfig(): sunsynkPowerFlowCardConfig {
-		const configHash = this._hashConfig(this._config);
-
 		// Return cached version if config hasn't changed
-		if (this._cachedSanitizedConfig && this._lastConfigHash === configHash) {
+		if (
+			this._cachedSanitizedConfig &&
+			this._lastCachedVersion === this._configVersion
+		) {
 			return this._cachedSanitizedConfig;
 		}
 
@@ -523,7 +524,7 @@ export class SunSynkCardEditor
 
 		// Cache the result
 		this._cachedSanitizedConfig = copy as unknown as sunsynkPowerFlowCardConfig;
-		this._lastConfigHash = configHash;
+		this._lastCachedVersion = this._configVersion;
 
 		return this._cachedSanitizedConfig;
 	}
@@ -537,6 +538,7 @@ export class SunSynkCardEditor
 			...this._config,
 			...(clone as unknown as sunsynkPowerFlowCardConfig),
 		};
+		this._configVersion++;
 	}
 
 	protected render(): TemplateResult | void {
@@ -863,100 +865,129 @@ export class SunSynkCardEditor
 												},
 											],
 										},
-										{
-											type: 'expandable',
-											title: this._title('bat2'),
-											schema: [
-												{
-													name: 'battery2',
-													type: 'grid',
-													schema: [
-														{
-															name: 'energy',
-															selector: { number: { min: 0 } },
-														},
-														{
-															name: 'shutdown_soc',
-															selector: {
-																number: { mode: 'box', min: 0, max: 100 },
+										...(Number(this._config.battery?.count ?? 1) === 2
+											? [
+													{
+														type: 'expandable',
+														title: this._title('bat2'),
+														schema: [
+															{
+																name: 'battery2',
+																type: 'grid',
+																schema: [
+																	{
+																		name: 'energy',
+																		selector: { number: { min: 0 } },
+																	},
+																	{
+																		name: 'shutdown_soc',
+																		selector: {
+																			number: { mode: 'box', min: 0, max: 100 },
+																		},
+																	},
+																	{
+																		name: 'shutdown_soc_offgrid',
+																		selector: {
+																			number: { mode: 'box', min: 0, max: 100 },
+																		},
+																	},
+																	{
+																		name: 'soc_end_of_charge',
+																		selector: {
+																			number: {
+																				mode: 'box',
+																				min: 80,
+																				max: 100,
+																			},
+																		},
+																	},
+																	{
+																		name: 'soc_decimal_places',
+																		selector: { number: {} },
+																	},
+																	{
+																		name: 'auto_scale',
+																		selector: { boolean: {} },
+																	},
+																	{
+																		name: 'invert_power',
+																		selector: { boolean: {} },
+																	},
+																	{
+																		name: 'show_absolute',
+																		selector: { boolean: {} },
+																	},
+																	{
+																		name: 'colour',
+																		selector: { color_rgb: {} },
+																	},
+																	{
+																		name: 'charge_colour',
+																		selector: { color_rgb: {} },
+																	},
+																	{
+																		name: 'dynamic_colour',
+																		selector: { boolean: {} },
+																	},
+																	{
+																		name: 'linear_gradient',
+																		selector: { boolean: {} },
+																	},
+																	{
+																		name: 'animate',
+																		selector: { boolean: {} },
+																	},
+																	{
+																		name: 'hide_soc',
+																		selector: { boolean: {} },
+																	},
+																	{
+																		name: 'show_remaining_energy',
+																		selector: { boolean: {} },
+																	},
+																	{
+																		name: 'remaining_energy_to_shutdown',
+																		selector: { boolean: {} },
+																	},
+																	{ name: 'navigate', selector: { text: {} } },
+																	{
+																		name: 'invert_flow',
+																		selector: { boolean: {} },
+																	},
+																],
 															},
-														},
-														{
-															name: 'shutdown_soc_offgrid',
-															selector: {
-																number: { mode: 'box', min: 0, max: 100 },
+															{
+																type: 'expandable',
+																title: this._title('sensor'),
+																schema: [
+																	{
+																		name: 'battery2',
+																		type: 'grid',
+																		schema: [
+																			{
+																				name: 'energy',
+																				selector: { entity: {} },
+																			},
+																			{
+																				name: 'shutdown_soc',
+																				selector: { entity: {} },
+																			},
+																			{
+																				name: 'shutdown_soc_offgrid',
+																				selector: { entity: {} },
+																			},
+																			{
+																				name: 'soc_end_of_charge',
+																				selector: { entity: {} },
+																			},
+																		],
+																	},
+																],
 															},
-														},
-														{
-															name: 'soc_end_of_charge',
-															selector: {
-																number: { mode: 'box', min: 80, max: 100 },
-															},
-														},
-														{
-															name: 'soc_decimal_places',
-															selector: { number: {} },
-														},
-														{ name: 'auto_scale', selector: { boolean: {} } },
-														{ name: 'invert_power', selector: { boolean: {} } },
-														{
-															name: 'show_absolute',
-															selector: { boolean: {} },
-														},
-														{ name: 'colour', selector: { color_rgb: {} } },
-														{
-															name: 'charge_colour',
-															selector: { color_rgb: {} },
-														},
-														{
-															name: 'dynamic_colour',
-															selector: { boolean: {} },
-														},
-														{
-															name: 'linear_gradient',
-															selector: { boolean: {} },
-														},
-														{ name: 'animate', selector: { boolean: {} } },
-														{ name: 'hide_soc', selector: { boolean: {} } },
-														{
-															name: 'show_remaining_energy',
-															selector: { boolean: {} },
-														},
-														{
-															name: 'remaining_energy_to_shutdown',
-															selector: { boolean: {} },
-														},
-														{ name: 'navigate', selector: { text: {} } },
-														{ name: 'invert_flow', selector: { boolean: {} } },
-													],
-												},
-												{
-													type: 'expandable',
-													title: this._title('sensor'),
-													schema: [
-														{
-															name: 'battery2',
-															type: 'grid',
-															schema: [
-																{ name: 'energy', selector: { entity: {} } },
-																{
-																	name: 'shutdown_soc',
-																	selector: { entity: {} },
-																},
-																{
-																	name: 'shutdown_soc_offgrid',
-																	selector: { entity: {} },
-																},
-																{
-																	name: 'soc_end_of_charge',
-																	selector: { entity: {} },
-																},
-															],
-														},
-													],
-												},
-											],
-										},
+														],
+													},
+												]
+											: []),
 									],
 								},
 							]
@@ -1485,66 +1516,79 @@ export class SunSynkCardEditor
 											},
 										],
 									},
-									{
-										type: 'expandable',
-										title: this._title('bat2'),
-										schema: [
-											{
-												name: 'entities',
-												type: 'grid',
-												schema: [
-													{
-														name: 'battery2_power_190',
-														selector: {
-															entity: { device_class: SensorDeviceClass.POWER },
+									...(Number(this._config.battery?.count ?? 1) === 2
+										? [
+												{
+													type: 'expandable',
+													title: this._title('bat2'),
+													schema: [
+														{
+															name: 'entities',
+															type: 'grid',
+															schema: [
+																{
+																	name: 'battery2_power_190',
+																	selector: {
+																		entity: {
+																			device_class: SensorDeviceClass.POWER,
+																		},
+																	},
+																},
+																{
+																	name: 'battery2_current_191',
+																	selector: {
+																		entity: {
+																			device_class: SensorDeviceClass.CURRENT,
+																		},
+																	},
+																},
+																{
+																	name: 'battery2_temp_182',
+																	selector: {
+																		entity: {
+																			device_class:
+																				SensorDeviceClass.TEMPERATURE,
+																		},
+																	},
+																},
+																{
+																	name: 'battery2_voltage_183',
+																	selector: {
+																		entity: {
+																			device_class: SensorDeviceClass.VOLTAGE,
+																		},
+																	},
+																},
+																{
+																	name: 'battery2_soc_184',
+																	selector: {
+																		entity: {
+																			device_class: SensorDeviceClass.BATTERY,
+																		},
+																	},
+																},
+																{
+																	name: 'battery2_rated_capacity',
+																	selector: { entity: {} },
+																},
+																{
+																	name: 'battery2_soh',
+																	selector: { entity: {} },
+																},
+																{
+																	name: 'battery2_current_direction',
+																	selector: { entity: {} },
+																},
+																{
+																	name: 'battery2_status',
+																	selector: { entity: {} },
+																},
+															],
 														},
-													},
-													{
-														name: 'battery2_current_191',
-														selector: {
-															entity: {
-																device_class: SensorDeviceClass.CURRENT,
-															},
-														},
-													},
-													{
-														name: 'battery2_temp_182',
-														selector: {
-															entity: {
-																device_class: SensorDeviceClass.TEMPERATURE,
-															},
-														},
-													},
-													{
-														name: 'battery2_voltage_183',
-														selector: {
-															entity: {
-																device_class: SensorDeviceClass.VOLTAGE,
-															},
-														},
-													},
-													{
-														name: 'battery2_soc_184',
-														selector: {
-															entity: {
-																device_class: SensorDeviceClass.BATTERY,
-															},
-														},
-													},
-													{
-														name: 'battery2_rated_capacity',
-														selector: { entity: {} },
-													},
-													{ name: 'battery2_soh', selector: { entity: {} } },
-													{
-														name: 'battery2_current_direction',
-														selector: { entity: {} },
-													},
-													{ name: 'battery2_status', selector: { entity: {} } },
-												],
-											},
-										],
-									},
+													],
+												},
+											]
+										: []),
 								],
 							},
 							{
@@ -1897,15 +1941,20 @@ export class SunSynkCardEditor
 
 	private _emitConfig(config: sunsynkPowerFlowCardConfig): void {
 		this._config = config;
+		this._configVersion++;
 		// Clear cache when config changes
 		this._cachedSanitizedConfig = undefined;
-		this._lastConfigHash = undefined;
+		this._lastCachedVersion = -1;
 		fireEvent(this, 'config-changed', { config });
 	}
 
 	// (header reset actions removed)
 
-	// (header reset actions removed)
+	private _withSuffix(base: string, condition: boolean): string {
+		const key = condition ? 'config.inline.shown' : 'config.inline.hidden';
+		const fallback = condition ? 'shown' : 'hidden';
+		return `${base} (${this._t(key, fallback)})`;
+	}
 
 	private _computeLabelCallback = (data: {
 		name?: string;
@@ -1921,44 +1970,25 @@ export class SunSynkCardEditor
 		// Base label from i18n with graceful fallback
 		const base = this._t(`config.${name}`, this._prettyLabel(name));
 
-		// Inline, stateful suffixes for better clarity on boolean/conditional options
-		const t = (k: string, d: string) => this._t(k, d);
 		const cfg = this._config as unknown as Record<string, unknown>;
 		switch (name) {
-			case 'show_solar': {
-				const on = Boolean(cfg.show_solar);
-				const suffix = on
-					? t('config.inline.shown', 'shown')
-					: t('config.inline.hidden', 'hidden');
-				return `${base} (${suffix})`;
-			}
-			case 'show_battery': {
-				const on = Boolean(cfg.show_battery);
-				const suffix = on
-					? t('config.inline.shown', 'shown')
-					: t('config.inline.hidden', 'hidden');
-				return `${base} (${suffix})`;
-			}
-			case 'show_grid': {
-				const on = Boolean(cfg.show_grid);
-				const suffix = on
-					? t('config.inline.shown', 'shown')
-					: t('config.inline.hidden', 'hidden');
-				return `${base} (${suffix})`;
-			}
+			case 'show_solar':
+				return this._withSuffix(base, Boolean(cfg.show_solar));
+			case 'show_battery':
+				return this._withSuffix(base, Boolean(cfg.show_battery));
+			case 'show_grid':
+				return this._withSuffix(base, Boolean(cfg.show_grid));
 			case 'dynamic_line_width': {
 				const on = Boolean(cfg.dynamic_line_width);
 				if (!on) {
-					const dis = t('config.inline.disabled', 'disabled');
-					return `${base} (${dis})`;
+					return `${base} (${this._t('config.inline.disabled', 'disabled')})`;
 				}
 				const max = cfg.max_line_width as number | undefined;
 				const min = cfg.min_line_width as number | undefined;
 				if (typeof max === 'number' && typeof min === 'number') {
 					return `${base} (min ${min} – max ${max})`;
 				}
-				const en = t('config.inline.enabled', 'enabled');
-				return `${base} (${en})`;
+				return `${base} (${this._t('config.inline.enabled', 'enabled')})`;
 			}
 			case 'three_phase': {
 				const on = Boolean(
